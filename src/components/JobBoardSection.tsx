@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
-import { Plus, Building2, Briefcase, Calendar, AlertCircle } from 'lucide-react';
+import { Plus, Building2, Briefcase, Calendar, AlertCircle, Trash2 } from 'lucide-react';
 
 const COLUMNS = ['WISHLIST', 'APPLIED', 'INTERVIEWING', 'OFFER', 'REJECTED'];
 
@@ -89,10 +89,23 @@ export default function JobBoardSection() {
     }
   };
 
+  const handleDeleteJob = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this job application?')) return;
+
+    try {
+      const res = await fetch(`/api/jobs/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to delete job');
+      
+      setJobs(jobs.filter(j => j.id !== id));
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
+
   if (loading) {
     return (
       <section className="fade-in flex flex-col w-full h-full items-center justify-center">
-        <div className="w-12 h-12 border-4 border-surface-container border-t-secondary-fixed rounded-full animate-spin"></div>
+        <div className="spinner w-12 h-12"></div>
       </section>
     );
   }
@@ -100,40 +113,41 @@ export default function JobBoardSection() {
   if (error) {
     return (
       <section className="fade-in flex flex-col w-full h-full items-center justify-center">
-        <div className="bg-red-50 p-6 rounded-xl border border-red-200 text-center flex flex-col items-center max-w-md">
-          <AlertCircle className="text-red-500 mb-2" size={32} />
-          <h3 className="font-bold text-red-600 mb-1">Access Denied</h3>
-          <p className="text-sm text-red-500 mb-4">{error}</p>
-          <p className="text-xs text-on-surface-variant">Please sign in to view your Job Board.</p>
+        <div className="bg-surface-container-lowest p-8 md:p-12 rounded-3xl border border-red-200 shadow-sm text-center max-w-md">
+          <div className="w-16 h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <AlertCircle size={32} />
+          </div>
+          <h3 className="text-xl font-headline font-bold text-primary mb-3">Access Denied</h3>
+          <p className="text-on-surface-variant text-[15px] mb-8">{error}</p>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="fade-in flex flex-col w-full h-full pb-8">
-      <div className="mb-6 flex justify-between items-end">
+    <section className="fade-in flex flex-col w-full h-full pb-8 overflow-hidden">
+      <div className="mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 slide-up">
         <div>
           <p className="text-[10px] font-bold tracking-widest text-on-surface-variant uppercase mb-2">Application Tracker</p>
-          <h2 className="text-3xl font-headline font-extrabold text-primary">Kanban Board</h2>
+          <h2 className="text-3xl md:text-4xl font-headline font-extrabold text-primary tracking-tight">Kanban Board</h2>
         </div>
         <button 
           onClick={() => setShowAddForm(true)}
-          className="bg-primary text-white px-4 py-2 rounded-lg font-semibold flex items-center gap-2 hover:bg-primary-fixed hover:text-on-primary-fixed transition-colors text-sm"
+          className="bg-primary text-on-primary-fixed px-5 py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-primary-fixed hover:shadow-lg transition-all text-sm w-fit"
         >
-          <Plus size={16} /> Add Application
+          <Plus size={18} /> Add Application
         </button>
       </div>
 
       {showAddForm && (
-        <div className="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/20 shadow-sm mb-6 max-w-2xl">
-          <h3 className="font-bold mb-4">New Application</h3>
-          <form onSubmit={handleAddJob} className="flex flex-col gap-4">
-            <div className="grid grid-cols-2 gap-4">
+        <div className="bg-surface-container-lowest p-8 rounded-3xl border border-outline-variant/15 shadow-md mb-8 max-w-2xl slide-up gradient-border relative z-20">
+          <h3 className="font-headline font-bold text-lg mb-6">New Application Record</h3>
+          <form onSubmit={handleAddJob} className="flex flex-col gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <input 
                 type="text" 
                 placeholder="Company Name" 
-                className="bg-surface p-3 rounded-lg border border-outline-variant/20 focus:border-secondary outline-none text-sm"
+                className="bg-surface p-4 rounded-xl border border-transparent focus:border-secondary/30 outline-none text-[15px] focus-ring transition-all"
                 value={newJob.company}
                 onChange={e => setNewJob({...newJob, company: e.target.value})}
                 required
@@ -141,38 +155,47 @@ export default function JobBoardSection() {
               <input 
                 type="text" 
                 placeholder="Role (e.g. SDE I)" 
-                className="bg-surface p-3 rounded-lg border border-outline-variant/20 focus:border-secondary outline-none text-sm"
+                className="bg-surface p-4 rounded-xl border border-transparent focus:border-secondary/30 outline-none text-[15px] focus-ring transition-all"
                 value={newJob.role}
                 onChange={e => setNewJob({...newJob, role: e.target.value})}
                 required
               />
             </div>
-            <div className="flex gap-4 items-center">
+            <div className="flex flex-col sm:flex-row gap-5 items-stretch sm:items-center">
               <select 
-                className="bg-surface p-3 rounded-lg border border-outline-variant/20 focus:border-secondary outline-none text-sm flex-1"
+                className="bg-surface p-4 rounded-xl border border-transparent focus:border-secondary/30 outline-none text-[15px] focus-ring transition-all flex-1 appearance-none"
                 value={newJob.status}
                 onChange={e => setNewJob({...newJob, status: e.target.value})}
               >
                 {COLUMNS.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
-              <button type="submit" className="bg-secondary-fixed text-on-secondary-fixed px-6 py-3 rounded-lg font-bold text-sm">Save</button>
-              <button type="button" onClick={() => setShowAddForm(false)} className="text-on-surface-variant text-sm font-semibold hover:text-primary">Cancel</button>
+              <div className="flex gap-3">
+                <button type="submit" className="bg-primary text-on-primary-fixed px-8 py-4 rounded-xl font-bold text-[15px] hover:shadow-lg transition-all">Save</button>
+                <button type="button" onClick={() => setShowAddForm(false)} className="bg-surface-container-low text-primary px-6 py-4 rounded-xl font-semibold hover:bg-surface-container-high transition-all">Cancel</button>
+              </div>
             </div>
           </form>
         </div>
       )}
 
-      <div className="flex-1 overflow-x-auto">
+      <div className="flex-1 overflow-x-auto overflow-y-hidden slide-up" style={{ animationDelay: '100ms' }}>
         <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="flex gap-6 h-full min-w-max pb-4">
+          <div className="flex gap-6 h-full min-w-max pb-4 px-1">
             {COLUMNS.map(columnId => {
               const columnJobs = jobs.filter(j => j.status === columnId);
               
+              // Map column to color accent
+              let accentColor = "bg-outline-variant";
+              if(columnId === 'OFFER') accentColor = "bg-secondary-fixed shadow-[0_0_10px_rgba(95,251,214,0.4)]";
+              if(columnId === 'REJECTED') accentColor = "bg-red-400";
+              if(columnId === 'INTERVIEWING') accentColor = "bg-blue-400";
+              
               return (
-                <div key={columnId} className="w-80 flex flex-col bg-surface-container-lowest/50 rounded-2xl border border-outline-variant/10">
-                  <div className="p-4 border-b border-outline-variant/10 flex justify-between items-center bg-surface-container-low rounded-t-2xl">
-                    <h3 className="font-bold text-sm tracking-wide">{columnId}</h3>
-                    <span className="text-xs bg-surface-container-high px-2 py-0.5 rounded-full font-bold">{columnJobs.length}</span>
+                <div key={columnId} className="w-[320px] flex flex-col bg-surface-container-low/50 rounded-3xl border border-outline-variant/10 overflow-hidden shrink-0">
+                  <div className="p-5 border-b border-outline-variant/10 flex justify-between items-center bg-surface-container-lowest relative">
+                    <div className={`absolute top-0 left-0 w-full h-1 ${accentColor}`}></div>
+                    <h3 className="font-headline font-bold text-[13px] tracking-widest uppercase text-primary mt-1">{columnId}</h3>
+                    <span className="text-[10px] bg-surface-container-low px-2.5 py-1 rounded-full font-bold text-on-surface-variant mt-1">{columnJobs.length}</span>
                   </div>
                   
                   <Droppable droppableId={columnId}>
@@ -180,8 +203,8 @@ export default function JobBoardSection() {
                       <div 
                         ref={provided.innerRef}
                         {...provided.droppableProps}
-                        className={`flex-1 p-3 flex flex-col gap-3 transition-colors ${snapshot.isDraggingOver ? 'bg-secondary-fixed/5' : ''}`}
-                        style={{ minHeight: '150px' }}
+                        className={`flex-1 p-4 flex flex-col gap-4 overflow-y-auto transition-colors duration-300 ${snapshot.isDraggingOver ? 'bg-secondary-fixed/5' : ''}`}
+                        style={{ minHeight: '200px' }}
                       >
                         {columnJobs.map((job, index) => (
                           <Draggable key={job.id} draggableId={job.id} index={index}>
@@ -190,19 +213,27 @@ export default function JobBoardSection() {
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
-                                className={`bg-surface p-4 rounded-xl border border-outline-variant/20 shadow-sm flex flex-col gap-3 transition-all ${snapshot.isDragging ? 'shadow-lg border-secondary/50 rotate-1' : 'hover:border-primary/30'}`}
+                                className={`bg-surface-container-lowest p-5 rounded-2xl border transition-all duration-200 ${snapshot.isDragging ? 'shadow-xl border-secondary scale-105 rotate-2 z-50' : 'shadow-sm border-outline-variant/15 hover:border-outline-variant/40 hover:shadow-md'}`}
                               >
                                 <div>
-                                  <h4 className="font-bold text-[15px] leading-tight text-primary flex items-center gap-2">
-                                    <Briefcase size={14} className="text-on-surface-variant" /> {job.role}
+                                  <h4 className="font-headline font-bold text-[16px] leading-tight text-primary flex items-start gap-2 mb-2">
+                                    <Briefcase size={16} className="text-secondary shrink-0 mt-0.5" /> 
+                                    <span className="flex-1">{job.role}</span>
+                                    <button 
+                                      onClick={() => handleDeleteJob(job.id)}
+                                      className="p-1 text-on-surface-variant/40 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors z-20"
+                                      title="Delete Application"
+                                    >
+                                      <Trash2 size={14} />
+                                    </button>
                                   </h4>
-                                  <p className="text-sm font-semibold text-on-surface-variant flex items-center gap-2 mt-1">
-                                    <Building2 size={13} /> {job.company}
+                                  <p className="text-[14px] font-medium text-on-surface-variant flex items-center gap-2">
+                                    <Building2 size={14} className="opacity-70" /> {job.company}
                                   </p>
                                 </div>
                                 {job.appliedDate && (
-                                  <div className="text-[10px] uppercase font-bold tracking-widest text-on-surface-variant/70 flex items-center gap-1 border-t border-outline-variant/10 pt-2">
-                                    <Calendar size={10} /> {new Date(job.appliedDate).toLocaleDateString()}
+                                  <div className="text-[9px] uppercase font-bold tracking-widest text-on-surface-variant/60 flex items-center gap-1.5 border-t border-surface-container-low pt-3 mt-4">
+                                    <Calendar size={11} /> {new Date(job.appliedDate).toLocaleDateString()}
                                   </div>
                                 )}
                               </div>
