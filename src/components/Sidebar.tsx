@@ -1,7 +1,8 @@
 "use client";
 
 import { Sparkles, Plus, Mic, BarChart2, Lightbulb, GraduationCap, Settings, HelpCircle, LogIn, LogOut } from 'lucide-react';
-import { signIn, signOut, useSession } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 interface SidebarProps {
   currentMode: string;
@@ -10,6 +11,7 @@ interface SidebarProps {
 
 export default function Sidebar({ currentMode, navigate }: SidebarProps) {
   const { data: session } = useSession();
+  const router = useRouter();
 
   const navItemClass = (mode: string) => {
     const base = "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors group cursor-pointer ";
@@ -29,7 +31,7 @@ export default function Sidebar({ currentMode, navigate }: SidebarProps) {
             </div>
             <div>
               <h1 className="font-headline font-bold text-base leading-tight">CareerEngine</h1>
-              <p className="text-[10px] text-on-surface-variant tracking-wider uppercase">CS Student Hub</p>
+              <p className="text-[10px] text-on-surface-variant tracking-wider uppercase">CS Career Architect</p>
             </div>
           </div>
         </div>
@@ -53,21 +55,21 @@ export default function Sidebar({ currentMode, navigate }: SidebarProps) {
             <Lightbulb size={20} className={currentMode !== 'projects' ? "group-hover:text-secondary" : ""} />
             <span className="font-medium">Project Suggester</span>
           </div>
-          <div className="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors group opacity-50 cursor-not-allowed">
-            <GraduationCap size={20} />
-            <span className="font-medium">Mentorship</span>
+          <div onClick={() => navigate('job-board')} className={navItemClass('job-board')}>
+            <GraduationCap size={20} className={currentMode !== 'job-board' ? "group-hover:text-secondary" : ""} />
+            <span className="font-medium">Job Board</span>
           </div>
         </nav>
       </div>
 
       <div className="p-4 space-y-1 mb-4">
         {session ? (
-          <div onClick={() => signOut()} className="flex items-center gap-3 px-4 py-3 rounded-lg text-red-500 hover:bg-red-50 transition-colors cursor-pointer">
+          <div onClick={() => signOut({ callbackUrl: '/login' })} className="flex items-center gap-3 px-4 py-3 rounded-lg text-red-500 hover:bg-red-50 transition-colors cursor-pointer">
             <LogOut size={20} />
             <span className="font-medium">Sign Out</span>
           </div>
         ) : (
-          <div onClick={() => signIn()} className="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:bg-surface-container-low transition-colors cursor-pointer">
+          <div onClick={() => router.push('/login')} className="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:bg-surface-container-low transition-colors cursor-pointer">
             <LogIn size={20} />
             <span className="font-medium">Sign In</span>
           </div>

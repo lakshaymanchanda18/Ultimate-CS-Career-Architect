@@ -58,7 +58,7 @@ export default function AnalyzerSection({ navigate, userData, updateUserData }: 
     return (
       <section className="fade-in flex flex-col w-full max-w-6xl mx-auto h-full">
         <div className="p-8 text-red-500 font-bold border border-red-200 rounded-xl bg-red-50 text-sm mt-8 mx-auto w-full max-w-2xl">
-          Error running Agentic Analysis: {error}. Please verify your API Key and try again.
+          Error running Agentic Analysis: {error}
         </div>
       </section>
     );

@@ -8,12 +8,13 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "email", placeholder: "student@example.com" },
-        password: { label: "Password", type: "password" }
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+        name: { label: "Name", type: "text" }
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Missing email or password");
+          throw new Error("Please enter your email and password.");
         }
 
         let user = await prisma.user.findUnique({
@@ -21,22 +22,23 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user) {
-          // Auto-create a mock user for testing if they don't exist
+          // Smart Registration: auto-create user if email doesn't exist
           const hashedPassword = await bcrypt.hash(credentials.password, 10);
           user = await prisma.user.create({
             data: {
               email: credentials.email,
-              name: credentials.email.split('@')[0],
+              name: credentials.name || credentials.email.split('@')[0],
               password: hashedPassword
             }
           });
           return user;
         }
 
+        // Existing user — verify password
         const isPasswordValid = await bcrypt.compare(credentials.password, user.password || '');
         
         if (!isPasswordValid) {
-          throw new Error("Invalid password");
+          throw new Error("Incorrect password. Please try again.");
         }
 
         return user;
@@ -47,19 +49,25 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.name = user.name;
+      }
+      return token;
+    },
     async session({ session, token }) {
-      if (session.user && token.sub) {
-        // Expose user ID in session
-        (session.user as any).id = token.sub;
+      if (session.user && token.id) {
+        (session.user as any).id = token.id;
+        session.user.name = token.name as string;
       }
       return session;
     }
   },
   pages: {
-    // Optionally specify custom sign-in page here
-    // signIn: '/login' 
+    signIn: '/login',
   },
-  secret: process.env.NEXTAUTH_SECRET || "fallback_secret_for_local_dev",
+  secret: process.env.NEXTAUTH_SECRET || "careerengine_super_secret_key_2026",
 };
 
 const handler = NextAuth(authOptions);

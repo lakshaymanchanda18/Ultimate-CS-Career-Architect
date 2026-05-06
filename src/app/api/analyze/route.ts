@@ -91,6 +91,12 @@ Format required exactly:
     return NextResponse.json(result);
   } catch (error: any) {
     console.error("Agentic Analysis Error:", error);
-    return NextResponse.json({ error: error.message || "Failed to run agentic analysis" }, { status: 500 });
+    
+    let errorMessage = error.message || "Failed to run agentic analysis";
+    if (typeof errorMessage === 'string' && (errorMessage.includes('429') || errorMessage.includes('RESOURCE_EXHAUSTED') || errorMessage.includes('quota'))) {
+      errorMessage = "AI Rate Limit Exceeded. You have made too many requests to the free tier API. Please wait a minute and try again.";
+    }
+
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
