@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
-import { AlertTriangle, CheckCircle, Cpu } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Cpu, Download } from 'lucide-react';
 import { UserData } from '../app/page';
+import { usePDF } from 'react-to-pdf';
+import ResumeTemplate from './ResumeTemplate';
 
 interface Props {
   navigate: (mode: string) => void;
@@ -11,6 +13,7 @@ interface Props {
 export default function AnalyzerSection({ navigate, userData, updateUserData }: Props) {
   const [loading, setLoading] = useState(!userData.analysisResults);
   const [error, setError] = useState<string | null>(null);
+  const { toPDF, targetRef } = usePDF({filename: 'optimized_resume.pdf'});
 
   useEffect(() => {
     if (userData.analysisResults) return;
@@ -77,7 +80,9 @@ export default function AnalyzerSection({ navigate, userData, updateUserData }: 
   } = userData.analysisResults;
 
   return (
-    <section className="fade-in flex flex-col w-full max-w-6xl mx-auto">
+    <section className="fade-in flex flex-col w-full max-w-6xl mx-auto relative">
+      <ResumeTemplate ref={targetRef} userData={userData} />
+      
       <div className="mb-8">
         <p className="text-[10px] font-bold tracking-widest text-on-surface-variant uppercase mb-2">The Editorial Engineer</p>
         <h2 className="text-3xl font-headline font-extrabold text-primary mb-2">Ultimate CS Career Architect</h2>
@@ -165,7 +170,10 @@ export default function AnalyzerSection({ navigate, userData, updateUserData }: 
          </div>
       </div>
       
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-4">
+         <button onClick={() => toPDF()} className="bg-surface-container-low text-on-surface-variant border border-outline-variant/20 px-6 py-3 rounded-lg font-semibold flex items-center gap-2 hover:bg-surface-container transition-all">
+           <Download size={16} /> Export to PDF
+         </button>
          <button onClick={() => navigate('projects')} className="bg-primary-container text-secondary-fixed px-6 py-3 rounded-lg font-semibold flex items-center gap-2 hover:bg-primary transition-all ai-glow">
            <Cpu size={16} /> Suggest Projects for My Profile
          </button>
