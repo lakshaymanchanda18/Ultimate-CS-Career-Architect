@@ -8,6 +8,7 @@ import InterviewSection from '@/components/InterviewSection';
 import AnalyzerSection from '@/components/AnalyzerSection';
 import ProjectsSection from '@/components/ProjectsSection';
 import DashboardSection from '@/components/DashboardSection';
+import JobBoardSection from '@/components/JobBoardSection';
 
 export interface UserData {
   college: string;
@@ -58,6 +59,7 @@ export default function Home() {
         <div className="flex-1 overflow-y-auto w-full no-scrollbar px-4 md:px-12 pb-12 pt-4 relative">
           {currentMode === 'discovery' && <DiscoverySection navigate={navigate} />}
           {currentMode === 'dashboard' && <DashboardSection navigate={navigate} restoreAnalysis={restoreAnalysis} />}
+          {currentMode === 'job-board' && <JobBoardSection />}
           {currentMode === 'interview' && (
             <InterviewSection 
               navigate={navigate} 
