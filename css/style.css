@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600&display=swap');
+
+body { 
+    font-family: 'Inter', sans-serif; 
+    background-color: #f7f9fb; 
+    color: #000000;
+}
+
+h1, h2, h3, h4, h5, h6, .font-headline { 
+    font-family: 'Manrope', sans-serif; 
+}
+
+.glass-panel { 
+    background: rgba(255, 255, 255, 0.7); 
+    backdrop-filter: blur(12px); 
+    border: 1px solid rgba(255, 255, 255, 0.3); 
+}
+
+/* Hide scrollbar for cleanly scrollable elements */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Screen transition animations */
+.fade-in {
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Dynamic glow for specific AI accents */
+.ai-glow {
+    box-shadow: 0 0 15px rgba(95,251,214,0.3);
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.ai-glow:hover {
+    box-shadow: 0 0 25px rgba(95,251,214,0.6);
+}

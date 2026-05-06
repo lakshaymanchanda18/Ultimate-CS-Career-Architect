@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CS Career Engine</title>
+  
+  <!-- Tailwind via CDN -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#000000",
+            "primary-container": "#0d1c32",
+            "secondary": "#006b58",
+            "secondary-fixed": "#5ffbd6",
+            "surface": "#f7f9fb",
+            "surface-container-low": "#f2f4f6",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-high": "#e8eaed",
+            "on-surface-variant": "#44474d",
+            "outline-variant": "#c5c6cd"
+          },
+          fontFamily: {
+            "headline": ["Manrope", "sans-serif"],
+            "body": ["Inter", "sans-serif"],
+            "label": ["Inter", "sans-serif"]
+          }
+        }
+      }
+    }
+  </script>
+  
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+</head>
+<body class="bg-surface text-primary h-screen flex text-sm overflow-hidden font-body">
+
+  <!-- Sidebar -->
+  <aside class="w-64 bg-surface-container-lowest border-r border-outline-variant/20 flex flex-col justify-between hidden md:flex shrink-0 z-20">
+    <div>
+      <div class="p-6 cursor-pointer" onclick="app.navigate('discovery')">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded bg-primary-container text-secondary-fixed flex items-center justify-center">
+            <span class="material-symbols-outlined text-lg">auto_awesome</span>
+          </div>
+          <div>
+            <h1 class="font-headline font-bold text-base leading-tight">CareerEngine</h1>
+            <p class="text-[10px] text-on-surface-variant tracking-wider uppercase">CS Student Hub</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="px-4 mt-2">
+        <button onclick="app.navigate('interview')" class="w-full bg-primary text-white rounded-lg py-3 flex items-center justify-center gap-2 font-semibold hover:shadow-lg transition-all">
+          <span class="material-symbols-outlined text-[18px]">add</span> New Resume
+        </button>
+      </div>
+
+      <nav class="mt-8 px-4 space-y-1">
+        <a href="#" onclick="app.navigate('interview')" id="nav-interview" class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors group">
+          <span class="material-symbols-outlined text-[20px] group-hover:text-secondary">record_voice_over</span>
+          <span class="font-medium">Interview</span>
+        </a>
+        <a href="#" onclick="app.navigate('analyzer')" id="nav-analyzer" class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors group">
+          <span class="material-symbols-outlined text-[20px] group-hover:text-secondary">analytics</span>
+          <span class="font-medium">Analyzer</span>
+        </a>
+        <a href="#" onclick="app.navigate('projects')" id="nav-projects" class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors group">
+          <span class="material-symbols-outlined text-[20px] group-hover:text-secondary">lightbulb</span>
+          <span class="font-medium">Project Suggester</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors group opacity-50 cursor-not-allowed">
+          <span class="material-symbols-outlined text-[20px]">school</span>
+          <span class="font-medium">Mentorship</span>
+        </a>
+      </nav>
+    </div>
+
+    <div class="p-4 space-y-1 mb-4">
+      <a href="#" onclick="app.resetApiKey()" class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors">
+        <span class="material-symbols-outlined text-[20px]">settings</span>
+        <span class="font-medium">Settings (Reset API Key)</span>
+      </a>
+      <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors">
+        <span class="material-symbols-outlined text-[20px]">help</span>
+        <span class="font-medium">Support</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 flex flex-col h-screen overflow-hidden bg-surface relative">
+    
+    <!-- Top Navbar (Mobile / Quick Links) -->
+    <header class="h-16 border-b border-outline-variant/10 flex items-center justify-between px-8 bg-surface-container-lowest md:bg-transparent md:border-none z-10 shrink-0">
+      <div class="flex items-center gap-6 font-medium text-sm text-on-surface-variant">
+        <a href="#" class="hover:text-primary transition-colors hidden md:block">My Resumes</a>
+        <a href="#" class="hover:text-primary transition-colors hidden md:block">Job Board</a>
+      </div>
+      <div class="flex items-center gap-4">
+        <button class="w-8 h-8 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors">
+          <span class="material-symbols-outlined text-[18px]">notifications</span>
+        </button>
+        <div class="w-8 h-8 rounded-full bg-primary-container text-white flex items-center justify-center font-bold text-xs">
+          LM
+        </div>
+      </div>
+    </header>
+
+    <!-- Scrollable Content -->
+    <div class="flex-1 overflow-y-auto w-full no-scrollbar px-4 md:px-12 pb-12 pt-4 relative">
+      
+      <!-- STATE: DISCOVERY -->
+      <section id="state-discovery" class="fade-in hidden flex-col w-full max-w-6xl mx-auto h-full">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center h-full min-h-[600px] bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm border border-outline-variant/10">
+          <div class="p-12 pb-20 pt-20">
+            <span class="px-3 py-1 bg-secondary-fixed text-primary text-xs font-bold rounded-full mb-6 inline-block">NEXT GEN CAREER TECH</span>
+            <h1 class="text-5xl md:text-6xl font-headline font-extrabold leading-tight mb-6">Build a Resume<br/>That <span class="text-secondary">Beats the ATS</span><br/>and Wins the Job</h1>
+            <p class="text-on-surface-variant mb-10 max-w-md">Stop guessing. Our AI-driven engine interviews you like a top-tier recruiter and architect's a professional narrative that high-growth companies can't ignore.</p>
+            <div class="flex items-center gap-4">
+              <button onclick="app.navigate('interview')" class="bg-primary text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2 hover:shadow-xl transition-all">
+                Start Your Interview <span class="material-symbols-outlined text-sm">arrow_forward</span>
+              </button>
+              <button class="bg-surface-container-low text-primary px-6 py-3 rounded-lg font-semibold hover:bg-outline-variant/20 transition-all">View Sample Resumes</button>
+            </div>
+          </div>
+          <div class="h-full bg-surface-container-low relative flex flex-col justify-end p-12">
+             <!-- Simulated card popping up -->
+             <div class="glass-panel p-6 rounded-2xl w-3/4 self-end shadow-xl ai-glow transform translate-y-8">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center">
+                    <span class="material-symbols-outlined text-sm">record_voice_over</span>
+                  </div>
+                  <span class="text-[10px] font-bold tracking-widest text-secondary">AI COACH ACTIVE</span>
+                </div>
+                <p class="text-sm font-medium italic">"I'm ready to audit your recent experience. Shall we begin?"</p>
+             </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STATE: INTERVIEW_MODE -->
+      <section id="state-interview" class="fade-in hidden flex-col w-full max-w-6xl mx-auto">
+        <div class="mb-8">
+          <p class="text-[10px] font-bold tracking-widest text-on-surface-variant uppercase mb-2">Interview Module • Phase 01</p>
+          <h2 class="text-3xl font-headline font-extrabold text-primary mb-2">Academic Foundations</h2>
+          <p class="text-on-surface-variant text-sm max-w-2xl">Let's build your technical profile. Our AI recruiter is here to help you structure your academic achievements for maximum impact.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div class="col-span-1">
+            <div class="bg-surface-container-high rounded-2xl p-8 mb-6">
+              <h3 class="font-headline font-bold text-lg mb-4">Why this matters?</h3>
+              <p class="text-sm text-on-surface-variant mb-6">Your academic stats form the baseline for entry-level roles. We use these to match you with "Batch-Specific" opportunities.</p>
+              
+              <div class="space-y-3">
+                <div class="flex items-center gap-3 bg-surface-container-lowest p-3 rounded-lg shadow-sm border border-outline-variant/10">
+                  <span class="material-symbols-outlined text-secondary text-[20px]">check_circle</span>
+                  <span class="text-xs font-semibold">College Reputation Analysis</span>
+                </div>
+                <div class="flex items-center gap-3 bg-surface-container-lowest p-3 rounded-lg shadow-sm border border-outline-variant/10 opacity-50">
+                  <span class="material-symbols-outlined text-outline-variant text-[20px]">lock</span>
+                  <span class="text-xs font-semibold">Technical Assessment (Phase 2)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-span-2">
+            <!-- Simulated Chat History -->
+            <div class="flex gap-4 mb-8">
+              <div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center shrink-0 shadow-lg shadow-secondary-fixed/20">
+                <span class="material-symbols-outlined text-primary text-xl">smart_toy</span>
+              </div>
+              <div class="bg-surface-container-lowest p-5 rounded-2xl rounded-tl-none border border-outline-variant/10 shadow-sm">
+                <p class="text-sm mb-4">Hello! I'm Sarah, your Career Architect guide. To start building your professional profile, I'd love to learn about your academic background.</p>
+                <p class="text-sm font-semibold">Which <span class="text-primary">College or University</span> did you attend, and what was your <span class="text-primary">Specialization</span>?</p>
+              </div>
+            </div>
+
+            <!-- User input block from rules -->
+            <div class="flex flex-col items-end gap-4 w-full">
+              <div class="glass-panel p-8 rounded-2xl rounded-tr-none shadow-lg border border-secondary/20 w-full lg:w-4/5 fade-in">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div class="col-span-2">
+                    <label class="text-[10px] font-label font-bold text-on-surface-variant mb-2 block tracking-widest uppercase">College / University</label>
+                    <input id="input-college" class="w-full bg-surface-container-low border-none rounded-lg p-3 text-sm focus:ring-2 focus:ring-secondary/30 outline-none transition-all" placeholder="e.g. UPES Dehradun" type="text"/>
+                  </div>
+                  <div class="col-span-1">
+                    <label class="text-[10px] font-label font-bold text-on-surface-variant mb-2 block tracking-widest uppercase">Specialization</label>
+                    <input id="input-spec" class="w-full bg-surface-container-low border-none rounded-lg p-3 text-sm focus:ring-2 focus:ring-secondary/30 outline-none transition-all" placeholder="e.g. CSE (AIML), Cyber, SDE" type="text"/>
+                  </div>
+                  <div class="col-span-1">
+                    <label class="text-[10px] font-label font-bold text-on-surface-variant mb-2 block tracking-widest uppercase">CGPA</label>
+                    <input id="input-cgpa" class="w-full bg-surface-container-low border-none rounded-lg p-3 text-sm focus:ring-2 focus:ring-secondary/30 outline-none transition-all" placeholder="e.g. 9.2/10" type="text"/>
+                  </div>
+                  <div class="col-span-2">
+                    <label class="text-[10px] font-label font-bold text-on-surface-variant mb-2 block tracking-widest uppercase">Tech Stack</label>
+                    <input id="input-stack" class="w-full bg-surface-container-low border-none rounded-lg p-3 text-sm focus:ring-2 focus:ring-secondary/30 outline-none transition-all" placeholder="e.g. Python, React, AWS, Tailwind" type="text"/>
+                  </div>
+                  <div class="col-span-2">
+                    <label class="text-[10px] font-label font-bold text-on-surface-variant mb-2 block tracking-widest uppercase">Raw Experience (Paste Resume Bullets)</label>
+                    <textarea id="input-experience" rows="3" class="w-full bg-surface-container-low border-none rounded-lg p-3 text-sm focus:ring-2 focus:ring-secondary/30 outline-none transition-all" placeholder="e.g. Worked with a team to build features for the website. Reduced load times."></textarea>
+                  </div>
+                </div>
+                <div class="mt-8 flex justify-end">
+                  <button onclick="app.saveInterview()" class="bg-primary text-white px-8 py-3 rounded-lg font-semibold flex items-center gap-2 hover:shadow-xl transition-all">
+                    Save & Continue <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+      </section>
+
+      <!-- STATE: ANALYZER_MODE -->
+      <section id="state-analyzer" class="fade-in hidden flex-col w-full max-w-6xl mx-auto">
+        <div class="mb-8">
+          <p class="text-[10px] font-bold tracking-widest text-on-surface-variant uppercase mb-2">The Editorial Engineer</p>
+          <h2 class="text-3xl font-headline font-extrabold text-primary mb-2">Ultimate CS Career Architect</h2>
+          <p class="text-on-surface-variant text-sm max-w-2xl">Precision-engineered resume analysis for high-tier tech roles. Our 3-Layer Audit identifies structural gaps, keyword misalignments, and impact deficiencies.</p>
+        </div>
+
+        <!-- 3-Layer Audit Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          
+          <div class="bg-primary-container text-white p-8 rounded-2xl relative overflow-hidden flex flex-col justify-between shadow-xl">
+            <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-secondary opacity-10 rounded-full blur-3xl"></div>
+            <h3 class="text-xs font-label tracking-widest font-bold uppercase opacity-60 mb-2">Layer 01 Audit</h3>
+            <h4 class="text-xl font-headline font-bold mb-4">ATS Compatibility</h4>
+            
+            <div class="flex flex-col items-center py-8">
+              <div class="w-40 h-40 rounded-full border-4 border-surface-container-low/20 border-l-secondary-fixed flex items-center justify-center relative">
+                 <span id="display-ats-score" class="text-6xl font-black font-headline text-secondary-fixed">75</span>
+                 <span class="absolute bottom-5 text-[10px] font-label font-bold tracking-widest opacity-60">SCORE / 100</span>
+              </div>
+            </div>
+            
+            <p id="display-ats-feedback" class="text-xs opacity-70 border-t border-white/10 pt-4 mt-2">Structural analysis complete. Detected multi-column layout risks for legacy parsers.</p>
+          </div>
+
+          <div class="bg-surface-container-lowest p-8 rounded-2xl border border-outline-variant/20 shadow-sm flex flex-col justify-between">
+            <div>
+               <h3 class="text-xs font-label font-bold tracking-widest uppercase mb-1 text-on-surface-variant">Layer 02 Audit</h3>
+               <h4 class="text-xl font-headline font-bold mb-8">Specialization Alignment</h4>
+               
+               <div class="space-y-6">
+                 <div>
+                   <div class="flex justify-between items-end mb-2">
+                     <span id="display-spec-1-name" class="text-sm font-bold">AIML / Data Science</span>
+                     <span id="display-spec-1-score" class="text-xs font-bold text-secondary">88% MATCH</span>
+                   </div>
+                   <div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+                     <div id="display-spec-1-bar" class="h-full bg-secondary rounded-full" style="width:88%"></div>
+                   </div>
+                 </div>
+                 
+                 <div>
+                   <div class="flex justify-between items-end mb-2">
+                     <span id="display-spec-2-name" class="text-sm font-bold text-on-surface-variant">Software Development (SDE)</span>
+                     <span id="display-spec-2-score" class="text-xs font-bold text-on-surface-variant">42% MATCH</span>
+                   </div>
+                   <div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+                     <div id="display-spec-2-bar" class="h-full bg-outline-variant rounded-full" style="width:42%"></div>
+                   </div>
+                 </div>
+               </div>
+            </div>
+            
+            <div class="pt-8 mt-8 border-t border-surface-container-low">
+               <h5 class="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant mb-4">Top Keyword Matches</h5>
+               <div class="flex gap-2 flex-wrap" id="keyword-badges">
+                 <span class="px-3 py-1 bg-secondary-fixed/20 text-secondary border border-secondary-fixed/50 text-[10px] font-bold rounded-full">KUBERNETES</span>
+                 <span class="px-3 py-1 bg-secondary-fixed/20 text-secondary border border-secondary-fixed/50 text-[10px] font-bold rounded-full">MICROSERVICES</span>
+                 <span class="px-3 py-1 bg-secondary-fixed/20 text-secondary border border-secondary-fixed/50 text-[10px] font-bold rounded-full">REST APIS</span>
+               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Impact score (Layer 3) -->
+        <div class="bg-surface-container-lowest p-8 rounded-2xl border border-outline-variant/20 shadow-sm mb-8">
+           <div class="flex justify-between items-center mb-6">
+              <div>
+                <h3 class="text-xs font-label font-bold tracking-widest uppercase mb-1 text-on-surface-variant">Layer 03 Audit</h3>
+                <h4 class="text-xl font-headline font-bold">Content Impact Score</h4>
+              </div>
+              <div class="flex items-center gap-2 border border-outline-variant/20 px-4 py-2 rounded-lg bg-surface-container-lowest">
+                <span id="display-impact-grade" class="text-xl font-black font-headline">B+</span>
+                <span class="text-[8px] font-bold uppercase tracking-widest text-on-surface-variant w-20 leading-tight">Quantifiable Impact Level</span>
+              </div>
+           </div>
+           
+           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Weak -->
+              <div class="bg-red-50 p-6 rounded-xl border-l-4 border-red-500">
+                 <span class="text-[10px] font-bold text-red-600 uppercase tracking-widest mb-3 block flex items-center gap-1"><span class="material-symbols-outlined text-sm">warning</span> Weak Bullet Points</span>
+                 <p id="display-weak-bullet" class="text-sm italic mb-4">"Responsible for developing new features for the student management system dashboard using React."</p>
+                 <span id="display-weak-issue" class="text-[10px] font-bold text-red-600 uppercase">Issue: Passive voice, lacks metrics.</span>
+              </div>
+              <!-- Impactful -->
+              <div class="bg-[#f0fbf8] p-6 rounded-xl border-l-4 border-secondary">
+                 <span class="text-[10px] font-bold text-secondary uppercase tracking-widest mb-3 block flex items-center gap-1"><span class="material-symbols-outlined text-sm">check_circle</span> Impactful Alternatives</span>
+                 <p class="text-sm font-semibold mb-4 leading-relaxed bg-white p-3 rounded shadow-sm" id="display-fixed-bullet">"Architected 5+ key features for a React dashboard, reducing page load latency by 40% via optimized state management."</p>
+                 <span id="display-fixed-strength" class="text-[10px] font-bold text-secondary uppercase">Strength: Active Voice + Quantitative Metric (Google XYZ Formula).</span>
+              </div>
+           </div>
+        </div>
+        
+        <div class="flex justify-end">
+           <button onclick="app.navigate('projects')" class="bg-primary-container text-secondary-fixed px-6 py-3 rounded-lg font-semibold flex items-center gap-2 hover:bg-primary transition-all ai-glow">
+             <span class="material-symbols-outlined text-sm">model_training</span> Suggest Projects for My Profile
+           </button>
+        </div>
+      </section>
+
+      <!-- STATE: PROJECT_SUGGESTER -->
+      <section id="state-projects" class="fade-in hidden flex-col w-full max-w-6xl mx-auto">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+          <div>
+             <span class="px-3 py-1 bg-secondary-fixed text-primary text-xs font-bold rounded-full mb-4 inline-flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">auto_awesome</span> HIGH-IMPACT MODE</span>
+             <h2 class="text-4xl font-headline font-extrabold text-primary mb-2">Smart Project Suggester</h2>
+             <p class="text-on-surface-variant text-sm">Custom suggestions for <span class="font-bold border-b border-secondary pb-0.5 text-secondary display-spec-name">AIML</span> aiming for <span class="font-bold text-primary">50 LPA+</span> roles at Tier-1 MNCs.</p>
+          </div>
+          <button class="bg-primary text-white px-5 py-2.5 rounded-lg flex items-center justify-center gap-2 font-semibold hover:shadow-lg transition-all" onclick="app.renderProjects()">
+            <span class="material-symbols-outlined text-[18px]">refresh</span> Regenerate Ideas
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="projects-container">
+          <!-- Populated by JS -->
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

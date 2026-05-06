@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CareerEngine | Smart Project Suggester</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed-variant": "#39475f",
+                        "on-surface-variant": "#44474d",
+                        "secondary-fixed": "#5ffbd6",
+                        "surface-container-high": "#e6e8ea",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#2b1701",
+                        "on-surface": "#191c1e",
+                        "primary-container": "#0d1c32",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#006b58",
+                        "on-primary-container": "#76849f",
+                        "inverse-surface": "#2d3133",
+                        "error-container": "#ffdad6",
+                        "inverse-primary": "#b9c7e4",
+                        "surface-dim": "#d8dadc",
+                        "primary-fixed-dim": "#b9c7e4",
+                        "surface-tint": "#515f78",
+                        "on-secondary": "#ffffff",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-error": "#ffffff",
+                        "surface-container": "#eceef0",
+                        "surface": "#f7f9fb",
+                        "on-primary-fixed": "#0d1c32",
+                        "on-tertiary-fixed": "#2b1701",
+                        "outline": "#75777e",
+                        "on-primary": "#ffffff",
+                        "on-background": "#191c1e",
+                        "tertiary-fixed": "#ffdcbd",
+                        "error": "#ba1a1a",
+                        "tertiary": "#000000",
+                        "surface-container-low": "#f2f4f6",
+                        "on-secondary-fixed-variant": "#005142",
+                        "surface-variant": "#e0e3e5",
+                        "primary-fixed": "#d6e3ff",
+                        "inverse-on-surface": "#eff1f3",
+                        "background": "#f7f9fb",
+                        "surface-bright": "#f7f9fb",
+                        "on-secondary-fixed": "#002019",
+                        "secondary-fixed-dim": "#38debb",
+                        "on-tertiary-fixed-variant": "#5d4124",
+                        "on-error-container": "#93000a",
+                        "outline-variant": "#c5c6cd",
+                        "on-tertiary-container": "#9f7d5b",
+                        "on-secondary-container": "#00725e",
+                        "secondary-container": "#5ffbd6",
+                        "primary": "#000000",
+                        "tertiary-fixed-dim": "#e7bf99"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface">
+<!-- TopNavBar -->
+<header class="fixed top-0 z-50 flex justify-between items-center w-full px-8 h-16 bg-white dark:bg-slate-950 transition-colors">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-black tracking-tighter text-slate-900 dark:text-slate-50">CareerEngine</span>
+<div class="hidden md:flex gap-6 items-center">
+<a class="text-slate-500 dark:text-slate-400 font-medium hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors" href="#">Dashboard</a>
+<a class="text-slate-900 dark:text-white font-bold border-b-2 border-emerald-500 transition-colors" href="#">Project Suggester</a>
+<a class="text-slate-500 dark:text-slate-400 font-medium hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors" href="#">Resume Analyzer</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-900 dark:text-slate-50 hover:bg-surface-container-low rounded-full transition-all active:scale-95 duration-150">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-slate-900 dark:text-slate-50 hover:bg-surface-container-low rounded-full transition-all active:scale-95 duration-150">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-primary-container flex items-center justify-center overflow-hidden">
+<img alt="User profile avatar" data-alt="high-quality digital avatar of a young professional with short dark hair and modern glasses wearing a tech company hoodie" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8lVSlGOTjcq8KQ6eT66V0auoUDY2KztmRyA8xT_Hl9Hc7A58Zw6UNFv24QuTJJXJxA6pQ58UBUFWO4FVsGLAAsvjPhA-ynfEcgJexdvCmnOvH2lQ-3CAxHD5ENbcCraeJJn_il1eyyBKk9z3DdpUgnN7Rlw5G_pYksILERO0kpYX1mYDJTmBz7bkcRxM78LKkbfWJv_3tEJSb6IppDTBGKTexwvu6v4z8syQDDO90QKqmZSsDvsDdC0YIUcKZLNBaRRG9pxNLJko"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full flex flex-col p-4 gap-2 bg-slate-50 dark:bg-slate-900 w-64 pt-20 hidden md:flex">
+<div class="mb-8 px-2">
+<h2 class="text-xl font-bold text-slate-900 dark:text-white font-headline tracking-tight">CareerEngine</h2>
+<p class="text-[12px] uppercase tracking-[0.05em] text-on-primary-container font-label">CS Student Hub</p>
+</div>
+<nav class="flex-1 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-sm font-medium">Resume Analyzer</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg shadow-sm font-semibold transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">psychology</span>
+<span class="text-sm font-medium">Project Suggester</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="text-sm font-medium">Templates</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">school</span>
+<span class="text-sm font-medium">Mentorship</span>
+</a>
+</nav>
+<div class="mt-auto flex flex-col gap-1">
+<button class="mb-4 bg-primary text-on-primary py-2.5 rounded-lg font-semibold text-sm shadow-sm active:scale-95 transition-all">
+                Analyze Resume
+            </button>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="text-sm font-medium">Support</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-lg transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="text-sm font-medium">Sign Out</span>
+</a>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="md:ml-64 pt-24 px-8 pb-12">
+<!-- Header Section -->
+<section class="max-w-6xl mx-auto mb-12 flex flex-col md:flex-row justify-between items-end gap-6">
+<div class="space-y-2">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-[11px] font-label font-bold tracking-widest uppercase">
+<span class="material-symbols-outlined text-sm">auto_awesome</span> High-Impact Mode
+                </div>
+<h1 class="text-5xl font-black font-headline text-primary tracking-tighter leading-none">Smart Project Suggester</h1>
+<p class="text-on-surface-variant max-w-lg font-body leading-relaxed">
+                    Custom suggestions for <span class="font-bold text-primary underline decoration-secondary-fixed decoration-4">Specialization: AIML</span> aiming for <span class="font-bold text-primary">50 LPA+</span> roles at Tier-1 MNCs.
+                </p>
+</div>
+<button class="flex items-center gap-2 px-6 py-3 bg-primary text-on-primary rounded-xl font-bold shadow-lg active:scale-95 transition-all hover:opacity-90">
+<span class="material-symbols-outlined">refresh</span>
+                Regenerate Ideas
+            </button>
+</section>
+<!-- Bento Grid Layout -->
+<div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
+<!-- Project Card 1: Large Featured -->
+<div class="md:col-span-8 bg-surface-container-lowest rounded-2xl border-none shadow-sm relative overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-br from-secondary-container/10 to-transparent opacity-50"></div>
+<!-- AI Accent Glow -->
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-secondary-fixed shadow-[0_0_15px_rgba(95,251,214,0.8)]"></div>
+<div class="relative p-8 h-full flex flex-col">
+<div class="flex justify-between items-start mb-6">
+<div class="space-y-1">
+<span class="text-[12px] font-label font-bold text-secondary uppercase tracking-[0.05em]">Project 01</span>
+<h3 class="text-3xl font-headline font-extrabold text-primary leading-tight">Agentic Supply Chain Orchestrator</h3>
+</div>
+<div class="px-4 py-2 bg-surface-container-low rounded-lg border border-outline-variant/15">
+<span class="text-[10px] font-label font-bold text-on-surface-variant block uppercase mb-1">MNC Demand</span>
+<span class="text-xs font-semibold text-primary">Google &amp; Zomato Logistics</span>
+</div>
+</div>
+<p class="text-on-surface-variant text-lg leading-relaxed mb-8 flex-1">
+                        A decentralized multi-agent system built in <span class="text-primary font-semibold">Rust</span> that uses LLMs to autonomously negotiate vendor contracts and predict delivery latency with 98% accuracy.
+                    </p>
+<div class="flex flex-wrap gap-2 mb-8">
+<span class="px-3 py-1 bg-surface-container-highest text-on-surface text-xs font-semibold rounded-full">Agentic AI</span>
+<span class="px-3 py-1 bg-surface-container-highest text-on-surface text-xs font-semibold rounded-full">Rust (Tokio)</span>
+<span class="px-3 py-1 bg-surface-container-highest text-on-surface text-xs font-semibold rounded-full">gRPC</span>
+<span class="px-3 py-1 bg-surface-container-highest text-on-surface text-xs font-semibold rounded-full">PostgreSQL</span>
+</div>
+<div class="flex items-center justify-between mt-auto pt-6 border-t border-surface-container">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</div>
+<div>
+<p class="text-[10px] font-label font-bold text-secondary uppercase">Unique Hook</p>
+<p class="text-sm font-bold text-primary">Autonomous Vendor Negotiation Engine</p>
+</div>
+</div>
+<div class="px-4 py-2 bg-primary-container text-secondary-fixed rounded-full text-xs font-bold flex items-center gap-2 shadow-md">
+<span class="material-symbols-outlined text-sm">stars</span> LPA Tip: Real-time WASM Dashboard
+                        </div>
+</div>
+</div>
+</div>
+<!-- Side Card: Stats/Insights -->
+<div class="md:col-span-4 bg-primary-container text-white rounded-2xl p-8 flex flex-col justify-center relative overflow-hidden">
+<div class="absolute -right-12 -top-12 w-48 h-48 bg-secondary rounded-full blur-[80px] opacity-20"></div>
+<h4 class="text-xl font-headline font-bold mb-4">Why these projects?</h4>
+<ul class="space-y-4">
+<li class="flex gap-3">
+<span class="material-symbols-outlined text-secondary-fixed">check_circle</span>
+<p class="text-sm text-on-primary-container">Targeted at HFTs and FAANG-level infra roles.</p>
+</li>
+<li class="flex gap-3">
+<span class="material-symbols-outlined text-secondary-fixed">check_circle</span>
+<p class="text-sm text-on-primary-container">Focus on Low Latency + Scalable Intelligence.</p>
+</li>
+<li class="flex gap-3">
+<span class="material-symbols-outlined text-secondary-fixed">check_circle</span>
+<p class="text-sm text-on-primary-container">Demonstrates "Production-Grade" engineering.</p>
+</li>
+</ul>
+<div class="mt-8 pt-8 border-t border-on-primary-fixed-variant/20">
+<p class="text-[10px] font-label text-on-primary-container uppercase tracking-widest mb-2">Market Heatmap</p>
+<div class="h-2 w-full bg-white/10 rounded-full overflow-hidden">
+<div class="h-full w-[92%] bg-gradient-to-r from-secondary-fixed to-emerald-400"></div>
+</div>
+<p class="mt-2 text-[10px] text-right text-secondary-fixed font-bold">92% High Demand</p>
+</div>
+</div>
+<!-- Project Card 2 -->
+<div class="md:col-span-6 bg-surface-container-low rounded-2xl p-8 border border-white/50 flex flex-col group hover:shadow-xl transition-shadow">
+<div class="flex justify-between items-start mb-6">
+<div>
+<span class="text-[12px] font-label font-bold text-secondary uppercase tracking-[0.05em]">Project 02</span>
+<h3 class="text-2xl font-headline font-extrabold text-primary">Personalized RLHF Tutor</h3>
+</div>
+<div class="px-3 py-1 bg-white rounded-md text-[10px] font-bold text-on-surface-variant uppercase shadow-sm">
+                        Uber/Amazon Demand
+                    </div>
+</div>
+<p class="text-on-surface-variant text-sm leading-relaxed mb-6 flex-1">
+                    An educational platform that uses <span class="font-semibold text-primary">Reinforcement Learning from Human Feedback (RLHF)</span> to dynamically adjust curriculum difficulty based on user biometric focus levels.
+                </p>
+<div class="flex flex-wrap gap-2 mb-6">
+<span class="px-2 py-0.5 bg-surface-container-highest text-[10px] font-bold rounded">PyTorch</span>
+<span class="px-2 py-0.5 bg-surface-container-highest text-[10px] font-bold rounded">FastAPI</span>
+<span class="px-2 py-0.5 bg-surface-container-highest text-[10px] font-bold rounded">WebRTC</span>
+</div>
+<div class="space-y-3">
+<div class="p-3 bg-white/50 rounded-xl flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-lg">anchor</span>
+<span class="text-xs font-bold text-primary">Hook: Biometric Feedback Loop</span>
+</div>
+<div class="p-3 bg-secondary-container/30 rounded-xl flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary text-lg">workspace_premium</span>
+<span class="text-xs font-bold text-on-secondary-container">LPA Tip: Distributed Model Training</span>
+</div>
+</div>
+</div>
+<!-- Project Card 3 -->
+<div class="md:col-span-6 bg-surface-container-low rounded-2xl p-8 border border-white/50 flex flex-col group hover:shadow-xl transition-shadow">
+<div class="flex justify-between items-start mb-6">
+<div>
+<span class="text-[12px] font-label font-bold text-secondary uppercase tracking-[0.05em]">Project 03</span>
+<h3 class="text-2xl font-headline font-extrabold text-primary">Hyper-Personalized Ad-Gen</h3>
+</div>
+<div class="px-3 py-1 bg-white rounded-md text-[10px] font-bold text-on-surface-variant uppercase shadow-sm">
+                        Meta/Google Ads Team
+                    </div>
+</div>
+<p class="text-on-surface-variant text-sm leading-relaxed mb-6 flex-1">
+                    Generative AI pipeline that creates visual ad assets and copy in <span class="font-semibold text-primary">real-time</span> based on user session cookies and live browsing context using Stable Diffusion XL.
+                </p>
+<div class="flex flex-wrap gap-2 mb-6">
+<span class="px-2 py-0.5 bg-surface-container-highest text-[10px] font-bold rounded">SDXL</span>
+<span class="px-2 py-0.5 bg-surface-container-highest text-[10px] font-bold rounded">Kubernetes</span>
+<span class="px-2 py-0.5 bg-surface-container-highest text-[10px] font-bold rounded">Kafka</span>
+</div>
+<div class="space-y-3">
+<div class="p-3 bg-white/50 rounded-xl flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-lg">electric_bolt</span>
+<span class="text-xs font-bold text-primary">Hook: Sub-second Asset Synthesis</span>
+</div>
+<div class="p-3 bg-secondary-container/30 rounded-xl flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary text-lg">workspace_premium</span>
+<span class="text-xs font-bold text-on-secondary-container">LPA Tip: Multi-region GPU Clusters</span>
+</div>
+</div>
+</div>
+</div>
+<!-- AI Assistant Floating Panel -->
+<div class="fixed bottom-8 right-8 w-80 glass-panel rounded-2xl shadow-2xl p-6 border border-white/40 overflow-hidden group">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary-fixed"></div>
+<div class="flex items-center gap-4 mb-4">
+<div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-secondary-fixed">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+</div>
+<div>
+<h5 class="font-headline font-bold text-sm text-primary leading-tight">Career Architect AI</h5>
+<p class="text-[10px] font-label text-on-surface-variant font-medium">ONLINE &amp; ANALYZING</p>
+</div>
+</div>
+<p class="text-xs text-on-surface leading-relaxed mb-4 italic">
+                "Based on recent GitHub trends and 50 LPA+ offer letters at Google, these projects emphasize **concurrency** and **LLM reasoning** over simple CRUD."
+            </p>
+<button class="w-full py-2 bg-surface-container-highest hover:bg-surface-container-high rounded-lg text-[11px] font-bold text-primary transition-colors flex items-center justify-center gap-2">
+                Download Technical Guide <span class="material-symbols-outlined text-xs">download</span>
+</button>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-white h-16 flex items-center justify-around px-4 shadow-[0_-4px_10px_rgba(0,0,0,0.03)] z-50">
+<button class="flex flex-col items-center gap-1 text-slate-500">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px] font-medium">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-emerald-600">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">psychology</span>
+<span class="text-[10px] font-bold">Projects</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-500">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-[10px] font-medium">Analysis</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-500">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-medium">Profile</span>
+</button>
+</nav>
+</body></html>

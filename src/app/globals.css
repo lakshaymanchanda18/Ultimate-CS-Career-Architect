@@ -1,0 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme inline {
+  --color-primary: #000000;
+  --color-primary-container: #0d1c32;
+  --color-secondary: #006b58;
+  --color-secondary-fixed: #5ffbd6;
+  --color-surface: #f7f9fb;
+  --color-surface-container-low: #f2f4f6;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-high: #e8eaed;
+  --color-on-surface-variant: #44474d;
+  --color-outline-variant: #c5c6cd;
+
+  --font-headline: "Manrope", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-label: "Inter", sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-surface);
+  color: var(--color-primary);
+}
+
+h1, h2, h3, h4, h5, h6, .font-headline { 
+  font-family: var(--font-headline); 
+}
+
+.glass-panel { 
+  background: rgba(255, 255, 255, 0.7); 
+  backdrop-filter: blur(12px); 
+  border: 1px solid rgba(255, 255, 255, 0.3); 
+}
+
+/* Hide scrollbar for cleanly scrollable elements */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Screen transition animations */
+.fade-in {
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Dynamic glow for specific AI accents */
+.ai-glow {
+  box-shadow: 0 0 15px rgba(95,251,214,0.3);
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+.ai-glow:hover {
+  box-shadow: 0 0 25px rgba(95,251,214,0.6);
+}
