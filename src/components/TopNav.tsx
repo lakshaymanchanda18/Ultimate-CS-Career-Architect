@@ -3,7 +3,11 @@
 import { Bell } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 
-export default function TopNav() {
+interface Props {
+  navigate?: (mode: string) => void;
+}
+
+export default function TopNav({ navigate }: Props) {
   const { data: session } = useSession();
 
   const userInitials = session?.user?.name 
@@ -13,8 +17,8 @@ export default function TopNav() {
   return (
     <header className="h-16 border-b border-outline-variant/10 flex items-center justify-between px-8 bg-surface-container-lowest md:bg-transparent md:border-none z-10 shrink-0">
       <div className="flex items-center gap-6 font-medium text-sm text-on-surface-variant">
-        <a href="#" className="hover:text-primary transition-colors hidden md:block">My Resumes</a>
-        <a href="#" className="hover:text-primary transition-colors hidden md:block">Job Board</a>
+        <button onClick={() => navigate && navigate('dashboard')} className="hover:text-primary transition-colors hidden md:block">My Resumes</button>
+        <button className="hover:text-primary transition-colors hidden md:block opacity-50 cursor-not-allowed">Job Board</button>
       </div>
       <div className="flex items-center gap-4">
         <button className="w-8 h-8 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors">
