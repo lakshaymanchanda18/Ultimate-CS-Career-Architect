@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { AlertTriangle, CheckCircle, Cpu, Download, RefreshCw } from 'lucide-react';
+import { useEffect, useState, useRef, useCallback } from 'react';
+import { AlertTriangle, CheckCircle, Cpu, Download, RefreshCw, ShieldAlert } from 'lucide-react';
 import { UserData } from '../app/page';
 import { usePDF } from 'react-to-pdf';
 import ResumeTemplate from './ResumeTemplate';
@@ -10,44 +10,101 @@ interface Props {
   updateUserData: (data: Partial<UserData>) => void;
 }
 
+interface AnalysisError {
+  message: string;
+  retryable: boolean;
+}
+
 export default function AnalyzerSection({ navigate, userData, updateUserData }: Props) {
   const [loading, setLoading] = useState(!userData.analysisResults);
-  const [error, setError] = useState<{message: string, retryable: boolean} | null>(null);
+  const [error, setError] = useState<AnalysisError | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const abortRef = useRef<AbortController | null>(null);
   const { toPDF, targetRef } = usePDF({filename: 'optimized_resume.pdf'});
 
-  const analyze = async () => {
+  const analyze = useCallback(async () => {
+    // Cancel any in-flight request
+    if (abortRef.current) {
+      abortRef.current.abort();
+    }
+
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     setLoading(true);
     setError(null);
+
     try {
       const res = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userData),
-        signal: AbortSignal.timeout(30000) // 30s timeout
+        body: JSON.stringify({
+          college: userData.college,
+          specialization: userData.specialization,
+          cgpa: userData.cgpa,
+          techStack: userData.techStack,
+          experience: userData.experience,
+        }),
+        signal: controller.signal,
       });
+
+      // Check if aborted during fetch
+      if (controller.signal.aborted) return;
+
       const data = await res.json();
-      
+
       if (!res.ok) {
-        throw { message: data.error || 'Failed to analyze resume.', retryable: data.retryable !== false };
+        throw {
+          message: data.error || 'Failed to analyze resume.',
+          retryable: data.retryable !== false,
+        };
+      }
+
+      // Validate we got actual analysis data
+      if (typeof data.atsScore !== 'number') {
+        throw {
+          message: 'Received incomplete analysis data. Please try again.',
+          retryable: true,
+        };
       }
 
       updateUserData({ analysisResults: data });
+      setRetryCount(0);
     } catch (err: any) {
-      if (err.name === 'AbortError') {
-        setError({ message: 'Request timed out. Please try again.', retryable: true });
-      } else {
-        setError(err.message ? err : { message: 'An unexpected error occurred.', retryable: true });
+      // Ignore abort errors from cleanup
+      if (err?.name === 'AbortError' || controller.signal.aborted) {
+        return;
       }
+
+      if (err.name === 'TimeoutError') {
+        setError({ message: 'Request timed out. The AI service may be busy — please try again.', retryable: true });
+      } else if (err.message) {
+        setError({ message: err.message, retryable: err.retryable !== false });
+      } else {
+        setError({ message: 'An unexpected error occurred. Please try again.', retryable: true });
+      }
+      setRetryCount(prev => prev + 1);
     } finally {
       setLoading(false);
     }
-  };
+  }, [userData.college, userData.specialization, userData.cgpa, userData.techStack, userData.experience]);
 
+  // Auto-start analysis on mount if no results
   useEffect(() => {
-    if (!userData.analysisResults && !error) {
+    if (!userData.analysisResults) {
       analyze();
     }
+
+    // Cleanup: abort on unmount
+    return () => {
+      if (abortRef.current) {
+        abortRef.current.abort();
+      }
+    };
   }, []);
+
+  // Determine if this is a configuration error (not retryable)
+  const isConfigError = error && !error.retryable;
 
   if (loading) {
     return (
@@ -55,9 +112,14 @@ export default function AnalyzerSection({ navigate, userData, updateUserData }: 
         <div className="flex-1 flex flex-col items-center justify-center py-20 w-full h-full text-center">
           <div className="spinner w-16 h-16 mb-8"></div>
           <h3 className="text-2xl font-headline font-bold mb-3 text-primary tracking-tight">AI Analysis Engine Active</h3>
-          <p className="text-on-surface-variant text-[15px] max-w-sm mx-auto mb-12">
+          <p className="text-on-surface-variant text-[15px] max-w-sm mx-auto mb-4">
             Evaluating structure and extracting quantifiable impact metrics...
           </p>
+          {retryCount > 0 && (
+            <p className="text-on-surface-variant/60 text-xs mb-12">
+              Attempt {retryCount + 1} • The AI service may need a moment
+            </p>
+          )}
           
           {/* Skeletons */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl text-left">
@@ -73,18 +135,38 @@ export default function AnalyzerSection({ navigate, userData, updateUserData }: 
     return (
       <section className="fade-in flex flex-col w-full max-w-6xl mx-auto h-full items-center justify-center">
         <div className="bg-surface-container-lowest p-8 md:p-10 rounded-3xl border border-red-200 shadow-lg text-center max-w-md">
-          <div className="w-16 h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <AlertTriangle size={32} />
+          <div className={`w-16 h-16 ${isConfigError ? 'bg-amber-50 text-amber-600' : 'bg-red-50 text-red-500'} rounded-2xl flex items-center justify-center mx-auto mb-6`}>
+            {isConfigError ? <ShieldAlert size={32} /> : <AlertTriangle size={32} />}
           </div>
-          <h3 className="text-xl font-headline font-bold text-primary mb-3">Analysis Paused</h3>
-          <p className="text-on-surface-variant text-[15px] mb-8">{error?.message}</p>
-          {error?.retryable !== false && (
+          <h3 className="text-xl font-headline font-bold text-primary mb-3">
+            {isConfigError ? 'Configuration Issue' : 'Analysis Failed'}
+          </h3>
+          <p className="text-on-surface-variant text-[15px] mb-8">{error?.message || 'No data available. Please start an interview first.'}</p>
+          
+          {error?.retryable && (
             <button 
               onClick={analyze}
+              disabled={loading}
+              className="w-full bg-primary text-on-primary-fixed py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <RefreshCw size={18} className={loading ? 'animate-spin' : ''} /> 
+              {retryCount > 2 ? 'Try Again (AI may be busy)' : 'Retry Analysis'}
+            </button>
+          )}
+
+          {!error && (
+            <button
+              onClick={() => navigate('interview')}
               className="w-full bg-primary text-on-primary-fixed py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:shadow-lg transition-all"
             >
-              <RefreshCw size={18} /> Retry Analysis
+              Start Interview First
             </button>
+          )}
+
+          {isConfigError && (
+            <p className="text-xs text-on-surface-variant/50 mt-6">
+              If this persists, check that your AI_API_KEY is valid in .env.local
+            </p>
           )}
         </div>
       </section>
@@ -198,7 +280,7 @@ export default function AnalyzerSection({ navigate, userData, updateUserData }: 
             </div>
             <div className="bg-secondary-fixed/5 p-6 rounded-2xl border border-secondary-fixed/30 hover:border-secondary-fixed/50 transition-colors">
                <span className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-3 flex items-center gap-1.5"><CheckCircle size={14} /> Impactful Alternatives</span>
-               <p className="text-[15px] font-semibold mb-5 leading-relaxed bg-white p-4 rounded-xl shadow-sm text-primary">"{fixedBullet || 'N/A'}"</p>
+               <p className="text-[15px] font-semibold mb-5 leading-relaxed bg-surface-container-lowest p-4 rounded-xl shadow-sm text-primary">"{fixedBullet || 'N/A'}"</p>
                <span className="inline-block px-3 py-1 bg-secondary-fixed/20 text-secondary text-[10px] font-bold uppercase rounded-lg">STRENGTH: {fixedStrength || 'Action-oriented'}</span>
             </div>
          </div>

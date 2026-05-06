@@ -1,22 +1,20 @@
 import { GoogleGenAI } from '@google/genai';
 
 // ─── Model Configuration ────────────────────────────────────────
-const PRIMARY_MODEL = 'gemini-2.0-flash-lite';
-const FALLBACK_MODEL = 'gemini-1.5-flash-8b';
+// Using models confirmed available on free-tier Google AI Studio.
+// gemini-2.0-flash is the current recommended default.
+// gemini-2.0-flash-lite is the lightest fallback.
+const PRIMARY_MODEL = 'gemini-flash-latest';
+const FALLBACK_MODEL = 'gemini-flash-lite-latest';
 
 const MAX_RETRIES = 3;
-const BASE_DELAY_MS = 1000;
+const BASE_DELAY_MS = 1500;
 
 // ─── Types ──────────────────────────────────────────────────────
 export interface AIOptions {
   maxOutputTokens?: number;
   temperature?: number;
   signal?: AbortSignal;
-}
-
-export interface AIResult {
-  text: string;
-  parsed: unknown | null;
 }
 
 export interface UserFriendlyError {
@@ -40,29 +38,69 @@ function getClient(): GoogleGenAI {
   return _client;
 }
 
-// ─── Rate Limit Detection ───────────────────────────────────────
-function isRateLimitError(error: unknown): boolean {
-  if (!(error instanceof Error)) return false;
+// ─── Error Classification ───────────────────────────────────────
+function classifyError(error: unknown): {
+  type: 'RATE_LIMIT' | 'MODEL_NOT_FOUND' | 'AUTH_FAILED' | 'PARSE_FAILED' | 'EMPTY_RESPONSE' | 'ABORTED' | 'UNKNOWN';
+  retryable: boolean;
+  switchModel: boolean;
+} {
+  if (!(error instanceof Error)) {
+    return { type: 'UNKNOWN', retryable: true, switchModel: false };
+  }
+
   const msg = error.message || '';
-  return (
+  const status = (error as any).status;
+
+  // Aborted by user
+  if (msg.includes('aborted') || msg.includes('AbortError')) {
+    return { type: 'ABORTED', retryable: false, switchModel: false };
+  }
+
+  // Auth / key issues — never retry, key is dead
+  if (
+    status === 400 || status === 403 ||
+    msg.includes('API_KEY_INVALID') ||
+    msg.includes('API key not valid') ||
+    msg.includes('leaked') ||
+    msg.includes('PERMISSION_DENIED')
+  ) {
+    return { type: 'AUTH_FAILED', retryable: false, switchModel: false };
+  }
+
+  // Rate limit — retry with backoff
+  if (
+    status === 429 ||
     msg.includes('429') ||
     msg.includes('RESOURCE_EXHAUSTED') ||
     msg.includes('quota') ||
-    msg.includes('rate') ||
     msg.includes('Too Many Requests')
-  );
-}
+  ) {
+    return { type: 'RATE_LIMIT', retryable: true, switchModel: true };
+  }
 
-function isModelUnavailableError(error: unknown): boolean {
-  if (!(error instanceof Error)) return false;
-  const msg = error.message || '';
-  return (
-    msg.includes('404') ||
+  // Model not found — don't retry this model, switch
+  if (
+    status === 404 ||
     msg.includes('not found') ||
     msg.includes('not available') ||
     msg.includes('does not exist') ||
-    msg.includes('MODEL_NOT_FOUND')
-  );
+    msg.includes('MODEL_NOT_FOUND') ||
+    msg.includes('not supported')
+  ) {
+    return { type: 'MODEL_NOT_FOUND', retryable: false, switchModel: true };
+  }
+
+  // Empty response
+  if (msg === 'EMPTY_RESPONSE') {
+    return { type: 'EMPTY_RESPONSE', retryable: true, switchModel: false };
+  }
+
+  // Parse failure
+  if (msg === 'PARSE_FAILED') {
+    return { type: 'PARSE_FAILED', retryable: true, switchModel: false };
+  }
+
+  return { type: 'UNKNOWN', retryable: true, switchModel: false };
 }
 
 // ─── JSON Response Parser (Robust) ──────────────────────────────
@@ -77,7 +115,7 @@ export function parseJSONResponse(text: string): unknown {
   try {
     return JSON.parse(cleaned);
   } catch {
-    // Attempt to extract JSON from surrounding text
+    // Fall through
   }
 
   // Find first { or [ and match to last } or ]
@@ -104,7 +142,16 @@ export function parseJSONResponse(text: string): unknown {
       } catch {
         // Try fixing trailing commas
         const fixed = extracted.replace(/,\s*([}\]])/g, '$1');
-        return JSON.parse(fixed);
+        try {
+          return JSON.parse(fixed);
+        } catch {
+          // Final attempt: fix common issues
+          const sanitized = fixed
+            .replace(/'/g, '"')
+            .replace(/(\w+):/g, '"$1":')
+            .replace(/""(\w+)"":/g, '"$1":');
+          return JSON.parse(sanitized);
+        }
       }
     }
   }
@@ -112,60 +159,100 @@ export function parseJSONResponse(text: string): unknown {
   throw new Error('PARSE_FAILED');
 }
 
-// ─── Error Sanitizer ────────────────────────────────────────────
+// ─── Error Sanitizer (Public) ───────────────────────────────────
 export function sanitizeAIError(error: unknown): UserFriendlyError {
   if (error instanceof Error && error.message === 'AI_API_KEY_MISSING') {
     return {
       error: 'AI_API_KEY_MISSING',
-      userMessage: 'AI service is not configured. Please contact support.',
+      userMessage: 'AI service is not configured. Please set AI_API_KEY in your environment.',
       retryable: false,
     };
   }
 
-  if (isRateLimitError(error)) {
-    return {
-      error: 'RATE_LIMITED',
-      userMessage:
-        'Our AI service is temporarily busy. Please wait a moment and try again.',
-      retryable: true,
-    };
-  }
+  const classified = classifyError(error);
 
-  if (isModelUnavailableError(error)) {
-    return {
-      error: 'MODEL_UNAVAILABLE',
-      userMessage:
-        'AI service is temporarily unavailable. Please try again shortly.',
-      retryable: true,
-    };
+  switch (classified.type) {
+    case 'AUTH_FAILED':
+      return {
+        error: 'AUTH_FAILED',
+        userMessage: 'Your AI API key is invalid or has been revoked. Please generate a new key from Google AI Studio and update your .env.local file.',
+        retryable: false,
+      };
+    case 'RATE_LIMIT':
+      return {
+        error: 'RATE_LIMITED',
+        userMessage: 'Our AI service is temporarily busy. Please wait 30 seconds and try again.',
+        retryable: true,
+      };
+    case 'MODEL_NOT_FOUND':
+      return {
+        error: 'MODEL_UNAVAILABLE',
+        userMessage: 'AI model is temporarily unavailable. Please try again shortly.',
+        retryable: true,
+      };
+    case 'PARSE_FAILED':
+      return {
+        error: 'PARSE_FAILED',
+        userMessage: 'We received an unexpected response from the AI. Please try again.',
+        retryable: true,
+      };
+    case 'EMPTY_RESPONSE':
+      return {
+        error: 'EMPTY_RESPONSE',
+        userMessage: 'The AI returned an empty response. Please try again.',
+        retryable: true,
+      };
+    case 'ABORTED':
+      return {
+        error: 'ABORTED',
+        userMessage: 'The request was cancelled.',
+        retryable: false,
+      };
+    default:
+      return {
+        error: 'UNKNOWN',
+        userMessage: 'Something went wrong with the AI service. Please try again later.',
+        retryable: true,
+      };
   }
-
-  if (error instanceof Error && error.message === 'PARSE_FAILED') {
-    return {
-      error: 'PARSE_FAILED',
-      userMessage:
-        'We received an unexpected response from the AI. Please try again.',
-      retryable: true,
-    };
-  }
-
-  return {
-    error: 'UNKNOWN',
-    userMessage: 'Something went wrong. Please try again later.',
-    retryable: true,
-  };
 }
 
-// ─── Core Generation with Retry + Fallback ──────────────────────
+// ─── Structured Logger ──────────────────────────────────────────
+function logAI(level: 'INFO' | 'WARN' | 'ERROR', event: string, data: Record<string, unknown> = {}) {
+  const entry = {
+    timestamp: new Date().toISOString(),
+    level,
+    service: 'ai-client',
+    event,
+    ...data,
+  };
+  if (level === 'ERROR') {
+    console.error(JSON.stringify(entry));
+  } else if (level === 'WARN') {
+    console.warn(JSON.stringify(entry));
+  } else {
+    console.log(JSON.stringify(entry));
+  }
+}
+
+// ─── Core Generation with Retry ─────────────────────────────────
 async function callModelWithRetry(
   prompt: string,
   model: string,
   options: AIOptions = {}
 ): Promise<string> {
   const client = getClient();
+  const startTime = Date.now();
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    // Check abort before each attempt
+    if (options.signal?.aborted) {
+      throw new Error('aborted');
+    }
+
     try {
+      logAI('INFO', 'model_request_start', { model, attempt, maxOutputTokens: options.maxOutputTokens });
+
       const response = await client.models.generateContent({
         model,
         contents: prompt,
@@ -176,29 +263,45 @@ async function callModelWithRetry(
       });
 
       const text = response.text || '';
+      const latency = Date.now() - startTime;
+
       if (!text.trim()) {
-        throw new Error('Empty response from AI');
+        logAI('WARN', 'empty_response', { model, attempt, latencyMs: latency });
+        throw new Error('EMPTY_RESPONSE');
       }
 
+      logAI('INFO', 'model_request_success', { model, attempt, latencyMs: latency, responseLength: text.length });
       return text;
     } catch (error) {
-      // Don't retry if aborted
-      if (options.signal?.aborted) {
-        throw new Error('REQUEST_ABORTED');
-      }
+      const classified = classifyError(error);
+      const latency = Date.now() - startTime;
 
-      // Don't retry on model-not-found (will fallback instead)
-      if (isModelUnavailableError(error)) {
+      logAI('WARN', 'model_request_failed', {
+        model,
+        attempt,
+        latencyMs: latency,
+        errorType: classified.type,
+        errorMessage: error instanceof Error ? error.message.substring(0, 200) : 'unknown',
+      });
+
+      // Non-retryable errors: abort immediately
+      if (!classified.retryable) {
         throw error;
       }
 
-      // On rate limit or last attempt, throw
+      // Should switch model: abort this model's retries
+      if (classified.switchModel) {
+        throw error;
+      }
+
+      // Last attempt: throw
       if (attempt === MAX_RETRIES - 1) {
         throw error;
       }
 
-      // Exponential backoff
-      const delay = BASE_DELAY_MS * Math.pow(2, attempt);
+      // Exponential backoff with jitter
+      const delay = BASE_DELAY_MS * Math.pow(2, attempt) + Math.random() * 500;
+      logAI('INFO', 'retry_backoff', { model, attempt, delayMs: Math.round(delay) });
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
@@ -210,19 +313,35 @@ async function callModelWithRetry(
 export async function generateAIResponse(
   prompt: string,
   options: AIOptions = {}
-): Promise<AIResult> {
+): Promise<{ text: string; parsed: unknown | null }> {
   let text: string;
+  let lastError: unknown;
 
+  // Try primary model
   try {
-    // Try primary model
     text = await callModelWithRetry(prompt, PRIMARY_MODEL, options);
   } catch (primaryError) {
+    const classified = classifyError(primaryError);
+    lastError = primaryError;
+
+    // If it's auth failure, don't bother trying fallback (same key)
+    if (classified.type === 'AUTH_FAILED' || classified.type === 'ABORTED') {
+      throw primaryError;
+    }
+
     // Fallback to secondary model
+    logAI('WARN', 'fallback_to_secondary', { primaryModel: PRIMARY_MODEL, fallbackModel: FALLBACK_MODEL });
     try {
       text = await callModelWithRetry(prompt, FALLBACK_MODEL, options);
-    } catch {
-      // Both models failed — throw the primary error for better diagnostics
-      throw primaryError;
+    } catch (fallbackError) {
+      logAI('ERROR', 'all_models_failed', {
+        primaryModel: PRIMARY_MODEL,
+        fallbackModel: FALLBACK_MODEL,
+        primaryErrorType: classified.type,
+      });
+      // Throw whichever error is more informative
+      const fallbackClassified = classifyError(fallbackError);
+      throw fallbackClassified.type === 'AUTH_FAILED' ? fallbackError : primaryError;
     }
   }
 
@@ -252,6 +371,7 @@ export async function generateJSON<T = unknown>(
     try {
       return parseJSONResponse(result.text) as T;
     } catch {
+      logAI('ERROR', 'json_parse_failed', { responsePreview: result.text.substring(0, 300) });
       throw new Error('PARSE_FAILED');
     }
   }
