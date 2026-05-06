@@ -38,7 +38,7 @@ Return the response STRICTLY as a JSON object with this exact structure (no mark
 }`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: 'gemini-1.5-flash-8b',
       contents: promptText,
     });
 
