@@ -9,6 +9,7 @@ import AnalyzerSection from '@/components/AnalyzerSection';
 import ProjectsSection from '@/components/ProjectsSection';
 import DashboardSection from '@/components/DashboardSection';
 import JobBoardSection from '@/components/JobBoardSection';
+import ProjectStudio from '@/components/ProjectStudio';
 
 export interface UserData {
   college: string;
@@ -30,8 +31,15 @@ export default function Home() {
     analysisResults: null
   });
 
+  const [selectedProject, setSelectedProject] = useState<{title: string, techStack: string} | null>(null);
+
   const navigate = (mode: string) => {
     setCurrentMode(mode);
+  };
+
+  const openStudio = (title: string, techStack: string) => {
+    setSelectedProject({ title, techStack });
+    navigate('project-studio');
   };
 
   const updateUserData = (data: Partial<UserData>) => {
@@ -77,6 +85,14 @@ export default function Home() {
           {currentMode === 'projects' && (
             <ProjectsSection 
               userData={userData} 
+              openStudio={openStudio}
+            />
+          )}
+          {currentMode === 'project-studio' && selectedProject && (
+            <ProjectStudio 
+              title={selectedProject.title}
+              techStack={selectedProject.techStack}
+              navigate={navigate}
             />
           )}
         </div>

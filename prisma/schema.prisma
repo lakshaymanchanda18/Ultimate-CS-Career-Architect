@@ -19,6 +19,7 @@ model User {
   profiles      Profile[]
   analyses      Analysis[]
   jobApplications JobApplication[]
+  projectBlueprints ProjectBlueprint[]
 }
 
 model Account {
@@ -100,6 +101,18 @@ model JobApplication {
   notes       String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ProjectBlueprint {
+  id              String   @id @default(cuid())
+  userId          String
+  title           String
+  architecture    String   // Mermaid JS diagram syntax stored as string
+  techStack       String
+  tasks           String   // JSON string of step-by-step tasks
+  createdAt       DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

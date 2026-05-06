@@ -4,9 +4,10 @@ import { UserData } from '../app/page';
 
 interface Props {
   userData: UserData;
+  openStudio: (title: string, techStack: string) => void;
 }
 
-export default function ProjectsSection({ userData }: Props) {
+export default function ProjectsSection({ userData, openStudio }: Props) {
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -91,6 +92,12 @@ export default function ProjectsSection({ userData }: Props) {
                   <span className="font-bold text-primary block mb-1">Killer Question:</span>
                   <span className="text-on-surface-variant italic">{p.killerQuestion}</span>
                 </div>
+                <button 
+                  onClick={() => openStudio(p.title, p.stack?.join(', ') || userData.techStack)}
+                  className="w-full bg-surface-container-highest text-primary border border-outline-variant/30 py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all mt-4"
+                >
+                  <Zap size={16} /> Execute in Studio
+                </button>
               </div>
             </div>
           );
