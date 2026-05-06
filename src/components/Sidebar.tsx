@@ -1,4 +1,7 @@
-import { Sparkles, Plus, Mic, BarChart2, Lightbulb, GraduationCap, Settings, HelpCircle } from 'lucide-react';
+"use client";
+
+import { Sparkles, Plus, Mic, BarChart2, Lightbulb, GraduationCap, Settings, HelpCircle, LogIn, LogOut } from 'lucide-react';
+import { signIn, signOut, useSession } from 'next-auth/react';
 
 interface SidebarProps {
   currentMode: string;
@@ -6,6 +9,8 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ currentMode, navigate }: SidebarProps) {
+  const { data: session } = useSession();
+
   const navItemClass = (mode: string) => {
     const base = "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors group cursor-pointer ";
     if (currentMode === mode) {
@@ -56,6 +61,17 @@ export default function Sidebar({ currentMode, navigate }: SidebarProps) {
       </div>
 
       <div className="p-4 space-y-1 mb-4">
+        {session ? (
+          <div onClick={() => signOut()} className="flex items-center gap-3 px-4 py-3 rounded-lg text-red-500 hover:bg-red-50 transition-colors cursor-pointer">
+            <LogOut size={20} />
+            <span className="font-medium">Sign Out</span>
+          </div>
+        ) : (
+          <div onClick={() => signIn()} className="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:bg-surface-container-low transition-colors cursor-pointer">
+            <LogIn size={20} />
+            <span className="font-medium">Sign In</span>
+          </div>
+        )}
         <div className="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors cursor-pointer">
           <Settings size={20} />
           <span className="font-medium">Settings</span>
