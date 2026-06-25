@@ -3,7 +3,7 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-@theme inline {
+@theme {
   --color-primary: #000000;
   --color-primary-container: #0d1c32;
   --color-primary-fixed: #1a2940;
@@ -26,22 +26,22 @@
 }
 
 /* ─── Dark Mode Overrides ──────────────────────────────────────── */
-.dark {
-  --color-primary: #ffffff;
-  --color-primary-container: #1a2940;
-  --color-primary-fixed: #0d1c32;
-  --color-secondary: #5ffbd6;
-  --color-secondary-fixed: #006b58;
+.dark, :root.dark, html.dark, :root[class~="dark"] {
+  --color-primary: #f6eedf;
+  --color-primary-container: #38271d;
+  --color-primary-fixed: #160f0a;
+  --color-secondary: #e29456;
+  --color-secondary-fixed: #764a2f;
   --color-on-secondary-fixed: #ffffff;
-  --color-surface: #0a0f18;
-  --color-surface-container: #111827;
-  --color-surface-container-low: #1f2937;
-  --color-surface-container-lowest: #0d121c;
-  --color-surface-container-high: #374151;
-  --color-surface-container-highest: #4b5563;
-  --color-on-surface-variant: #9ca3af;
+  --color-surface: #160f0a;
+  --color-surface-container: #31241c;
+  --color-surface-container-low: #291e16;
+  --color-surface-container-lowest: #211710;
+  --color-surface-container-high: #3d2e25;
+  --color-surface-container-highest: #4b3b30;
+  --color-on-surface-variant: #b4a395;
   --color-on-primary-fixed: #000000;
-  --color-outline-variant: #374151;
+  --color-outline-variant: #3a2c21;
 }
 
 /* ─── Base ─────────────────────────────────────────────────────── */

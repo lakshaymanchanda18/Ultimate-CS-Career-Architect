@@ -57,7 +57,8 @@ function LoginForm() {
         if (result?.error) {
           setError(result.error === "CredentialsSignin" ? "Invalid email or password." : result.error);
         } else {
-          router.push("/");
+          const section = searchParams.get("section");
+          router.push(section ? `/?section=${section}` : "/");
           router.refresh();
         }
       }

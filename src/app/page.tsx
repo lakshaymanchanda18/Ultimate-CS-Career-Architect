@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import TopNav from "@/components/TopNav";
 import DiscoverySection from "@/components/DiscoverySection";
@@ -38,15 +39,30 @@ export default function Home() {
   }
 
   if (session) {
-    return <DashboardApp />;
+    return (
+      <Suspense fallback={
+        <div className="flex h-screen w-full items-center justify-center bg-surface">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm font-semibold text-on-surface-variant animate-pulse font-body">Loading console...</p>
+          </div>
+        </div>
+      }>
+        <DashboardApp />
+      </Suspense>
+    );
   }
 
   return <LandingPage />;
 }
 
 function DashboardApp() {
-  const [appMode, setAppMode] = useState("discovery"); // logical state
-  const [displayMode, setDisplayMode] = useState("discovery"); // render state
+  const searchParams = useSearchParams();
+  const querySection = searchParams.get("section");
+  const initialSection = ["discovery", "interview", "analyzer", "dashboard", "job-board", "projects", "settings"].includes(querySection || "") ? querySection! : "discovery";
+
+  const [appMode, setAppMode] = useState(initialSection); // logical state
+  const [displayMode, setDisplayMode] = useState(initialSection); // render state
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [activeProject, setActiveProject] = useState<{title: string, techStack: string} | null>(null);
   const [userData, setUserData] = useState<UserData>({
