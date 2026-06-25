@@ -123,7 +123,7 @@ export default function ProjectStudio({ title, techStack, navigate }: ProjectStu
                 <div 
                   key={idx} 
                   onClick={() => toggleTask(idx)}
-                  className={`p-5 rounded-2xl border cursor-pointer transition-all duration-300 flex items-start gap-3.5 ${task.completed ? 'bg-surface-container-low border-outline-variant/20 opacity-60 scale-[0.98]' : 'bg-white border-outline-variant/20 hover:border-secondary/50 hover:shadow-md'}`}
+                  className={`p-5 rounded-2xl border cursor-pointer transition-all duration-300 flex items-start gap-3.5 ${task.completed ? 'bg-surface-container-low border-outline-variant/20 opacity-60 scale-[0.98]' : 'bg-surface-container-lowest border-outline-variant/20 hover:border-secondary/50 hover:shadow-md'}`}
                 >
                   <div className={`mt-0.5 transition-transform duration-300 ${task.completed ? 'check-bounce' : ''}`}>
                     {task.completed ? <CheckCircle size={20} className="text-secondary" /> : <Circle size={20} className="text-outline-variant" />}
@@ -141,7 +141,7 @@ export default function ProjectStudio({ title, techStack, navigate }: ProjectStu
             <h3 className="text-xl font-headline font-bold mb-6">System Architecture</h3>
             <div className="flex-1 overflow-auto bg-surface-container-low rounded-2xl flex items-center justify-center p-6 border border-outline-variant/10 shadow-inner relative group">
                <div ref={mermaidRef} className="w-full h-full flex justify-center text-sm font-body"></div>
-               <div className="absolute inset-0 bg-white/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none backdrop-blur-[1px]">
+               <div className="absolute inset-0 bg-surface-container-lowest/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none backdrop-blur-[1px]">
                  <span className="bg-primary text-on-primary-fixed px-4 py-2 rounded-lg text-xs font-bold shadow-lg">Scroll to zoom/pan</span>
                </div>
             </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import Sidebar from "@/components/Sidebar";
 import TopNav from "@/components/TopNav";
 import DiscoverySection from "@/components/DiscoverySection";
@@ -11,6 +12,7 @@ import JobBoardSection from "@/components/JobBoardSection";
 import ProjectsSection from "@/components/ProjectsSection";
 import ProjectStudio from "@/components/ProjectStudio";
 import SettingsSection from "@/components/SettingsSection";
+import LandingPage from "@/components/LandingPage";
 
 export interface UserData {
   college: string;
@@ -22,6 +24,27 @@ export interface UserData {
 }
 
 export default function Home() {
+  const { data: session, status } = useSession();
+
+  if (status === "loading") {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-surface">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm font-semibold text-on-surface-variant animate-pulse font-body">Verifying session...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (session) {
+    return <DashboardApp />;
+  }
+
+  return <LandingPage />;
+}
+
+function DashboardApp() {
   const [appMode, setAppMode] = useState("discovery"); // logical state
   const [displayMode, setDisplayMode] = useState("discovery"); // render state
   const [isTransitioning, setIsTransitioning] = useState(false);

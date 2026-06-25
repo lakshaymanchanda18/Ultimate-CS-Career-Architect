@@ -97,14 +97,14 @@ export default function SettingsSection() {
             <Database size={20} className="text-secondary" /> Data Management
           </h3>
           
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-5 rounded-2xl border border-red-200 bg-red-50/30 gap-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-5 rounded-2xl border border-red-200 dark:border-red-900/30 bg-red-50/30 dark:bg-red-950/10 gap-4">
             <div>
               <p className="font-bold text-primary mb-1">Clear Local Storage</p>
               <p className="text-sm text-on-surface-variant">Resets theme preferences and clears local cache.</p>
             </div>
             <button 
               onClick={handleClearCache}
-              className="px-6 py-3 bg-white text-red-600 border border-red-200 rounded-xl font-bold flex items-center gap-2 hover:bg-red-50 transition-colors"
+              className="px-6 py-3 bg-white dark:bg-surface-container-low text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/40 rounded-xl font-bold flex items-center gap-2 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors cursor-pointer"
             >
               <Trash2 size={16} /> Clear Cache
             </button>
