@@ -3,7 +3,7 @@
 import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Sparkles, Mail, Lock, ArrowRight, User } from "lucide-react";
+import { Sparkles, Mail, Lock, ArrowRight, User, ArrowLeft } from "lucide-react";
 
 function LoginForm() {
   const router = useRouter();
@@ -23,10 +23,37 @@ function LoginForm() {
   const [resetSent, setResetSent] = useState(false);
   const [resetLink, setResetLink] = useState("");
 
+  const hasMinLength = password.length >= 8;
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasLowercase = /[a-z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  const hasSpecial = /[@$!%*?&]/.test(password);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
+
+    // Strict email formatting validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address.");
+      setLoading(false);
+      return;
+    }
+
+    if (view === "signup" || view === "login") {
+      if (view === "signup" && !name.trim()) {
+        setError("Full name is required.");
+        setLoading(false);
+        return;
+      }
+      if (!hasMinLength || !hasUppercase || !hasLowercase || !hasNumber || !hasSpecial) {
+        setError("Please satisfy all password strength requirements.");
+        setLoading(false);
+        return;
+      }
+    }
 
     try {
       if (view === "forgot") {
@@ -118,12 +145,21 @@ function LoginForm() {
       {/* Right Panel - Form */}
       <div className="flex-1 flex items-center justify-center p-8 bg-surface transition-colors">
         <div className="w-full max-w-md">
-          {/* Mobile Logo */}
-          <div className="flex items-center gap-3 mb-10 lg:hidden">
-            <div className="w-10 h-10 rounded-lg bg-primary-container text-secondary-fixed flex items-center justify-center">
-              <Sparkles size={22} />
+          {/* Mobile Header (Back Link + Logo) */}
+          <div className="flex items-center justify-between mb-10 lg:hidden">
+            <button 
+              onClick={() => router.push("/")}
+              className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-on-surface-variant hover:text-primary transition-colors cursor-pointer group"
+            >
+              <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
+              Back
+            </button>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-primary-container text-secondary-fixed flex items-center justify-center">
+                <Sparkles size={18} />
+              </div>
+              <span className="font-headline font-bold text-base text-primary">CareerEngine</span>
             </div>
-            <h1 className="font-headline font-bold text-xl">CareerEngine</h1>
           </div>
 
           <div className="mb-8">
@@ -223,9 +259,35 @@ function LoginForm() {
                       placeholder="••••••••"
                       className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl py-3.5 pl-12 pr-4 text-sm focus:border-secondary focus:ring-1 focus:ring-secondary/20 outline-none transition-all text-primary"
                       required
-                      minLength={6}
                     />
                   </div>
+                  {(view === "signup" || view === "login") && password.length > 0 && (
+                    <div className="mt-3 space-y-1.5 p-3.5 bg-surface-container-low/50 rounded-xl border border-outline-variant/10 animate-in fade-in duration-300">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant mb-1">Password Requirements:</p>
+                      <div className="grid grid-cols-2 gap-2 text-[10px] font-semibold">
+                        <div className={`flex items-center gap-1.5 transition-colors ${hasMinLength ? "text-green-600 dark:text-green-400" : "text-on-surface-variant/65"}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${hasMinLength ? "bg-green-600 dark:bg-green-400" : "bg-on-surface-variant/40"}`} />
+                          <span>8+ Characters</span>
+                        </div>
+                        <div className={`flex items-center gap-1.5 transition-colors ${hasUppercase ? "text-green-600 dark:text-green-400" : "text-on-surface-variant/65"}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${hasUppercase ? "bg-green-600 dark:bg-green-400" : "bg-on-surface-variant/40"}`} />
+                          <span>1 Uppercase (A-Z)</span>
+                        </div>
+                        <div className={`flex items-center gap-1.5 transition-colors ${hasLowercase ? "text-green-600 dark:text-green-400" : "text-on-surface-variant/65"}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${hasLowercase ? "bg-green-600 dark:bg-green-400" : "bg-on-surface-variant/40"}`} />
+                          <span>1 Lowercase (a-z)</span>
+                        </div>
+                        <div className={`flex items-center gap-1.5 transition-colors ${hasNumber ? "text-green-600 dark:text-green-400" : "text-on-surface-variant/65"}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${hasNumber ? "bg-green-600 dark:bg-green-400" : "bg-on-surface-variant/40"}`} />
+                          <span>1 Number (0-9)</span>
+                        </div>
+                        <div className={`flex items-center gap-1.5 transition-colors ${hasSpecial ? "text-green-600 dark:text-green-400" : "text-on-surface-variant/65"}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${hasSpecial ? "bg-green-600 dark:bg-green-400" : "bg-on-surface-variant/40"}`} />
+                          <span>1 Special (@$!%*?&)</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
