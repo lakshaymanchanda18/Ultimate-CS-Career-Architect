@@ -1,6 +1,6 @@
 "use client";
 
-import { Sparkles, Plus, Mic, BarChart2, Lightbulb, GraduationCap, Settings, HelpCircle, LogIn, LogOut } from 'lucide-react';
+import { Home, Sparkles, Plus, Mic, BarChart2, Lightbulb, GraduationCap, Settings, HelpCircle, LogIn, LogOut } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
@@ -46,6 +46,10 @@ export default function Sidebar({ currentMode, navigate }: SidebarProps) {
         </div>
 
         <nav className="px-4 space-y-1.5">
+          <div onClick={() => navigate('discovery')} className={navItemClass('discovery')}>
+            <Home size={20} className={currentMode === 'discovery' ? 'text-secondary' : 'text-on-surface-variant/70 group-hover:text-secondary transition-colors'} />
+            <span className="text-[14px]">Home</span>
+          </div>
           <div onClick={() => navigate('interview')} className={navItemClass('interview')}>
             <Mic size={20} className={currentMode === 'interview' ? 'text-secondary' : 'text-on-surface-variant/70 group-hover:text-secondary transition-colors'} />
             <span className="text-[14px]">Interview</span>

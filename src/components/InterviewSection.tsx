@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Bot, CheckCircle, Lock, ArrowRight, UserCircle } from 'lucide-react';
 import { UserData } from '../app/page';
 
@@ -8,9 +9,37 @@ interface Props {
 }
 
 export default function InterviewSection({ navigate, userData, updateUserData }: Props) {
-  const handleSave = () => {
-    updateUserData({ analysisResults: undefined });
-    navigate('analyzer');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSave = async () => {
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          college: userData.college,
+          specialization: userData.specialization,
+          cgpa: userData.cgpa,
+          techStack: userData.techStack,
+          experience: userData.experience,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to save academic profile.');
+      }
+
+      updateUserData({ analysisResults: undefined });
+      navigate('analyzer');
+    } catch (err: any) {
+      setError(err.message || 'An error occurred while saving profile data.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -124,14 +153,28 @@ export default function InterviewSection({ navigate, userData, updateUserData }:
                   ></textarea>
                 </div>
               </div>
+              {error && (
+                <div className="mt-6 text-sm font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 rounded-xl p-4">
+                  {error}
+                </div>
+              )}
               <div className="mt-8 flex justify-end">
                 <button 
                   onClick={handleSave} 
-                  disabled={!userData.college || !userData.experience}
-                  className="bg-primary text-on-primary-fixed px-8 py-4 rounded-xl font-bold flex items-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={saving || !userData.college || !userData.experience}
+                  className="bg-primary text-on-primary-fixed px-8 py-4 rounded-xl font-bold flex items-center gap-2 hover:shadow-lg hover:shadow-primary/20 transition-all group disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
-                  Save & Continue 
-                  <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
+                  {saving ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-1" />
+                      Saving Profile...
+                    </>
+                  ) : (
+                    <>
+                      Save & Continue 
+                      <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
+                    </>
+                  )}
                 </button>
               </div>
             </div>

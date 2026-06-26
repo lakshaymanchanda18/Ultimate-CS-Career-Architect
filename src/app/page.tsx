@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, Suspense, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
@@ -16,6 +16,7 @@ import SettingsSection from "@/components/SettingsSection";
 import LandingPage from "@/components/LandingPage";
 
 export interface UserData {
+  name: string;
   college: string;
   specialization: string;
   cgpa: string;
@@ -66,12 +67,36 @@ function DashboardApp() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [activeProject, setActiveProject] = useState<{title: string, techStack: string} | null>(null);
   const [userData, setUserData] = useState<UserData>({
+    name: "",
     college: "",
     specialization: "",
     cgpa: "",
     techStack: "",
     experience: "",
   });
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch("/api/profile");
+        if (res.ok) {
+          const profile = await res.json();
+          setUserData(prev => ({
+            ...prev,
+            name: profile.name || "",
+            college: profile.college || "",
+            specialization: profile.specialization || "",
+            cgpa: profile.cgpa || "",
+            techStack: profile.techStack || "",
+            experience: profile.experience || "",
+          }));
+        }
+      } catch (err) {
+        console.error("Failed to load profile", err);
+      }
+    };
+    fetchProfile();
+  }, []);
 
   const navigate = (mode: string) => {
     if (mode === appMode) return;
@@ -123,7 +148,7 @@ function DashboardApp() {
           {displayMode === "job-board" && <JobBoardSection />}
           {displayMode === "projects" && <ProjectsSection userData={userData} openStudio={openStudio} />}
           {displayMode === "project-studio" && activeProject && <ProjectStudio title={activeProject.title} techStack={activeProject.techStack} navigate={navigate} />}
-          {displayMode === "settings" && <SettingsSection />}
+          {displayMode === "settings" && <SettingsSection userData={userData} updateUserData={updateUserData} />}
         </div>
       </main>
     </div>

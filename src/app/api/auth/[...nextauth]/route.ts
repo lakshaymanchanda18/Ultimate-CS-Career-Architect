@@ -10,35 +10,58 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
-        name: { label: "Name", type: "text" }
+        name: { label: "Name", type: "text" },
+        action: { label: "Action", type: "text" }
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Please enter your email and password.");
         }
 
+        const email = credentials.email.toLowerCase();
+
         let user = await prisma.user.findUnique({
-          where: { email: credentials.email }
+          where: { email }
         });
 
-        if (!user) {
-          // Smart Registration: auto-create user if email doesn't exist
+        // Registration Flow
+        if (credentials.action === "signup") {
+          if (user) {
+            throw new Error("An account with this email address already exists.");
+          }
           const hashedPassword = await bcrypt.hash(credentials.password, 10);
+          const signupName = (credentials.name && credentials.name !== "undefined" && credentials.name.trim() !== "") 
+            ? credentials.name 
+            : email.split('@')[0];
+
           user = await prisma.user.create({
             data: {
-              email: credentials.email,
-              name: credentials.name || credentials.email.split('@')[0],
+              email,
+              name: signupName,
               password: hashedPassword
             }
           });
           return user;
         }
 
-        // Existing user — verify password
+        // Login Flow
+        if (!user) {
+          throw new Error("No account found with this email. Please sign up first.");
+        }
+
         const isPasswordValid = await bcrypt.compare(credentials.password, user.password || '');
         
         if (!isPasswordValid) {
           throw new Error("Incorrect password. Please try again.");
+        }
+
+        // Auto-correct corrupted "undefined" or null name in database
+        if (!user.name || user.name === "undefined" || user.name.trim() === "") {
+          const fallbackName = email.split('@')[0];
+          user = await prisma.user.update({
+            where: { id: user.id },
+            data: { name: fallbackName }
+          });
         }
 
         return user;
@@ -47,19 +70,26 @@ export const authOptions: NextAuthOptions = {
   ],
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days session persistence
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
-        token.name = user.name;
+        token.name = user.name && user.name !== "undefined" ? user.name : null;
+      }
+      if (trigger === "update" && session?.name) {
+        token.name = session.name;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user && token.id) {
         (session.user as any).id = token.id;
-        session.user.name = token.name as string;
+        const nameVal = token.name as string;
+        session.user.name = (!nameVal || nameVal === "undefined") 
+          ? (session.user.email ? session.user.email.split('@')[0] : "User")
+          : nameVal;
       }
       return session;
     }

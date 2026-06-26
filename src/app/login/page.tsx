@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, Suspense, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Sparkles, Mail, Lock, ArrowRight, User, ArrowLeft } from "lucide-react";
+import { Sparkles, Mail, Lock, ArrowRight, User, ArrowLeft, Eye, EyeOff } from "lucide-react";
 
 function LoginForm() {
   const router = useRouter();
@@ -16,12 +16,14 @@ function LoginForm() {
   const [view, setView] = useState<"login" | "signup" | "forgot">(initialView);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [resetSent, setResetSent] = useState(false);
   const [resetLink, setResetLink] = useState("");
+  const [authSuccessState, setAuthSuccessState] = useState<"signup_success" | "login_success" | null>(null);
 
   const hasMinLength = password.length >= 8;
   const hasUppercase = /[A-Z]/.test(password);
@@ -78,15 +80,19 @@ function LoginForm() {
           email,
           password,
           name: isSignUp ? name : undefined,
+          action: isSignUp ? "signup" : "login",
           redirect: false,
         });
 
         if (result?.error) {
           setError(result.error === "CredentialsSignin" ? "Invalid email or password." : result.error);
         } else {
+          setAuthSuccessState(isSignUp ? "signup_success" : "login_success");
           const section = searchParams.get("section");
-          router.push(section ? `/?section=${section}` : "/");
-          router.refresh();
+          setTimeout(() => {
+            router.push(section ? `/?section=${section}` : "/");
+            router.refresh();
+          }, 3200);
         }
       }
     } catch (err) {
@@ -253,13 +259,20 @@ function LoginForm() {
                   <div className="relative">
                     <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50" />
                     <input
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl py-3.5 pl-12 pr-4 text-sm focus:border-secondary focus:ring-1 focus:ring-secondary/20 outline-none transition-all text-primary"
+                      className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl py-3.5 pl-12 pr-12 text-sm focus:border-secondary focus:ring-1 focus:ring-secondary/20 outline-none transition-all text-primary"
                       required
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 hover:text-primary transition-colors cursor-pointer select-none"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
                   </div>
                   {(view === "signup" || view === "login") && password.length > 0 && (
                     <div className="mt-3 space-y-1.5 p-3.5 bg-surface-container-low/50 rounded-xl border border-outline-variant/10 animate-in fade-in duration-300">
@@ -370,6 +383,7 @@ function LoginForm() {
           </div>
         </div>
       </div>
+      {authSuccessState && <SuccessOverlay type={authSuccessState} />}
     </div>
   );
 }
@@ -386,5 +400,93 @@ export default function LoginPage() {
     }>
       <LoginForm />
     </Suspense>
+  );
+}
+
+function SuccessOverlay({ type }: { type: "signup_success" | "login_success" }) {
+  const [currentStep, setCurrentStep] = useState(0);
+
+  const signupSteps = [
+    "git init --bare --shared",
+    "npm install @career-engine/recruiter",
+    "Initializing secure user credentials...",
+    "Creating SQLite developer workspace...",
+    "Establishing neural link with Gemini AI...",
+    "Compilation complete! Welcome aboard."
+  ];
+
+  const loginSteps = [
+    "git checkout main && git pull origin main",
+    "Restoring user profile variables...",
+    "Synchronizing historical ATS audit reports...",
+    "Connecting active project Kanban boards...",
+    "Loading career developer console...",
+    "Session established! Welcome back."
+  ];
+
+  const steps = type === "signup_success" ? signupSteps : loginSteps;
+
+  useEffect(() => {
+    const intervals = [400, 900, 1400, 1900, 2400, 2900];
+    const timers = intervals.map((ms, index) => 
+      setTimeout(() => setCurrentStep(index), ms)
+    );
+    return () => timers.forEach(clearTimeout);
+  }, [type]);
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-surface/90 backdrop-blur-2xl transition-all duration-500 font-body animate-in fade-in duration-300">
+      <div className="absolute inset-0 opacity-10 pointer-events-none overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-secondary blur-3xl animate-pulse" style={{ animationDuration: '6s' }} />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-primary blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
+      </div>
+
+      <div className="relative z-10 flex flex-col items-center text-center max-w-lg px-6">
+        {/* Animated Icon Ring */}
+        <div className="relative mb-10 w-24 h-24 flex items-center justify-center">
+          <div className="absolute inset-0 rounded-full border-4 border-surface-container-high" />
+          <div className="absolute inset-0 rounded-full border-4 border-t-secondary border-r-transparent border-b-transparent border-l-transparent animate-spin" style={{ animationDuration: '1.2s' }} />
+          <div className="absolute inset-2 rounded-full border border-outline-variant/30 border-dashed animate-spin" style={{ animationDuration: '4s', animationDirection: 'reverse' }} />
+          <Sparkles className="text-secondary animate-pulse" size={32} />
+        </div>
+
+        {/* Welcome Header */}
+        <h2 className="text-3xl font-headline font-extrabold text-primary mb-3">
+          {type === "signup_success" ? "Architect Account Created!" : "Access Granted!"}
+        </h2>
+        <p className="text-on-surface-variant font-semibold mb-8 text-sm md:text-base leading-relaxed">
+          {type === "signup_success" 
+            ? "Welcome to CareerEngine. Ready to scale your SDE profile?" 
+            : "Welcome back! Let's resume your career journey."}
+        </p>
+
+        {/* Simulated developer build logs */}
+        <div className="w-full bg-surface-container-lowest border border-outline-variant/20 rounded-2xl p-5 text-left font-mono text-[11px] text-on-surface-variant/80 shadow-inner h-40 overflow-hidden flex flex-col justify-end gap-1.5 relative">
+          <div className="absolute top-3 left-4 text-[9px] font-bold uppercase tracking-wider text-on-surface-variant/40 flex items-center gap-1.5 select-none">
+            <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
+            <span className="w-1.5 h-1.5 rounded-full bg-yellow-400" />
+            <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
+            <span className="ml-1">SYSTEM INIT</span>
+          </div>
+
+          <div className="space-y-1 mt-4">
+            {steps.slice(0, currentStep + 1).map((step, idx) => {
+              const isLast = idx === currentStep;
+              const isCommand = step.startsWith("git") || step.startsWith("npm");
+              return (
+                <div key={idx} className={`transition-opacity duration-300 ${isLast ? "text-secondary font-bold" : "opacity-60"}`}>
+                  <span className="text-on-surface-variant/30 mr-2 select-none">&gt;</span>
+                  {isCommand ? (
+                    <span className="text-primary font-semibold">{step}</span>
+                  ) : (
+                    <span>{step}</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
