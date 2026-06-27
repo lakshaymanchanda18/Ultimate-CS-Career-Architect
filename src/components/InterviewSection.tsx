@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { 
   Bot, CheckCircle, Lock, ArrowRight, UserCircle, Sparkles, 
   Award, ArrowLeft, RefreshCw, Send, BrainCircuit, FileText, 
-  Check, AlertCircle, HelpCircle, Loader2, Sparkle, Clock
+  Check, AlertCircle, HelpCircle, Loader2, Sparkle, Clock, Trash2
 } from 'lucide-react';
 import { UserData } from '../app/page';
 
@@ -107,38 +107,44 @@ export default function InterviewSection({ navigate, userData, updateUserData }:
   const cleanRecruiterTypos = (text: string): string => {
     if (!text) return text;
     
-    let cleaned = text;
+    // Strip zero-width characters and soft hyphens first
+    let cleaned = text.replace(/[\u200B-\u200D\uFEFF\u2060\u00AD]/g, '');
 
     // 1. Systematically fix any contraction merges (straight ' or curly ’ apostrophes)
     // Matches e.g. I'mexcited -> I'm excited, Let'sbegin -> Let's begin, We'vediscussed -> We've discussed
-    // and standard contractions: m, ll, ve, d, s, re
-    const contractionRegex = /\b([a-zA-Z]+['’](?:m|ll|ve|d|s|re))([a-zA-Z]+)\b/g;
+    // and standard contractions: m, ll, ve, d, s, re, t (like don'tgo -> don't go, That'sa -> That's a)
+    // Note: removed boundary checks to match merges under all contexts (even with surrounding punctuation)
+    const contractionRegex = /([a-zA-Z]+['’](?:m|ll|ve|d|s|re|t))([a-zA-Z]+)/g;
     cleaned = cleaned.replace(contractionRegex, '$1 $2');
 
     // 2. Fix "I[verb]" spacing issues (e.g. Imade -> I made)
-    const iVerbRegex = /\bI(made|think|have|had|am|was|go|went|see|saw|want|wanted|need|needed|hope|hoped|feel|felt|know|knew|say|said|tell|told|ask|asked|get|got|can|could|will|would|should|must|do|did|done|make|build|built|suggest|suggested|start|started|begin|began|understand|agree|disagree|believe|appreciate|apologize)\b/g;
+    const iVerbRegex = /\bI(made|think|have|had|am|was|go|went|see|saw|want|wanted|need|needed|hope|hoped|feel|felt|know|knew|say|said|tell|told|ask|asked|get|got|can|could|will|would|should|must|do|did|done|make|build|built|suggest|suggested|start|started|begin|began|understand|agree|disagree|believe|appreciate|apologize)/g;
     cleaned = cleaned.replace(iVerbRegex, 'I $1');
 
     // 3. Fix "To[verb]" spacing issues (e.g. Toclarify -> To clarify)
-    const toVerbRegex = /\b(To|to)(clarify|get|start|begin|help|discuss|ask|build|guide|share|talk|say|tell|write|create|make|do|see|hear|feel|know|think|understand|learn|practice|review|evaluate|analyze|analyse|audit|sync|save|proceed|identify|outline|explore|summarize|select|focus|tackle|solve)\b/g;
+    const toVerbRegex = /\b(To|to)(clarify|get|start|begin|help|discuss|ask|build|guide|share|talk|say|tell|write|create|make|do|see|hear|feel|know|think|understand|learn|practice|review|evaluate|analyze|analyse|audit|sync|save|proceed|identify|outline|explore|summarize|select|focus|tackle|solve)/g;
     cleaned = cleaned.replace(toVerbRegex, '$1 $2');
 
     // 4. Fix "You[verb]" spacing issues (e.g. Youwant -> You want)
-    const youVerbRegex = /\b(You|you)(want|need|have|had|are|were|can|will|should|do|did|describe|share|think|know|make|suggest|suggested|start|started|begin|began|agree|disagree|tell|told|say|said)\b/g;
+    const youVerbRegex = /\b(You|you)(want|need|have|had|are|were|can|will|should|do|did|describe|share|think|know|make|suggest|suggested|start|started|begin|began|agree|disagree|tell|told|say|said)/g;
     cleaned = cleaned.replace(youVerbRegex, '$1 $2');
 
     // 5. Fix "We[verb]" spacing issues (e.g. Wehave -> We have)
-    const weVerbRegex = /\b(We|we)(made|think|have|had|are|were|want|need|discuss|discussed|start|started|begin|began|can|will|should|do|did|suggest|suggested)\b/g;
+    const weVerbRegex = /\b(We|we)(made|think|have|had|are|were|want|need|discuss|discussed|start|started|begin|began|can|will|should|do|did|suggest|suggested)/g;
     cleaned = cleaned.replace(weVerbRegex, '$1 $2');
 
     // 6. Fix "Let[me/us]" spacing issues (e.g. Letme -> Let me)
-    cleaned = cleaned.replace(/\b(Let|let)(me|us)\b/g, '$1 $2');
+    cleaned = cleaned.replace(/\b(Let|let)(me|us)/g, '$1 $2');
 
-    // 7. Fix "Here[is/are]" / "There[is/are]" spacing issues (e.g. Hereis -> Here is)
-    cleaned = cleaned.replace(/\b(Here|here|There|there)(is|are|was|were)\b/g, '$1 $2');
+    // 7. Fix "Here[is/are/s]" / "There[is/are/s]" spacing issues (e.g. Hereis -> Here is, That'sa -> That's a)
+    cleaned = cleaned.replace(/\b(Here|here|There|there|It|it|That|that|What|what|How|how)(is|are|was|were|s|s'|has|d)/g, '$1 $2');
 
     // 8. Fix "What[is/are/can/do]" spacing issues (e.g. Whatcan -> What can)
-    cleaned = cleaned.replace(/\b(What|what)(is|are|was|were|can|do|does)\b/g, '$1 $2');
+    cleaned = cleaned.replace(/\b(What|what)(is|are|was|were|can|do|does)/g, '$1 $2');
+
+    // 9. Fix camelCase spacing (e.g. excitedTo -> excited To, builderSection -> builder Section)
+    const camelCaseRegex = /([a-z])([A-Z])/g;
+    cleaned = cleaned.replace(camelCaseRegex, '$1 $2');
 
     return cleaned;
   };
@@ -193,6 +199,54 @@ export default function InterviewSection({ navigate, userData, updateUserData }:
       }
     }
     return null;
+  };
+
+  const handleDeleteSession = async (e: React.MouseEvent, sessionId: string) => {
+    e.stopPropagation();
+    
+    if (!window.confirm("Are you sure you want to delete this interview session log? This action cannot be undone.")) {
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/interview/history', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId })
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to delete session.");
+      }
+
+      setHistoryList(prev => prev.filter(s => s.id !== sessionId));
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "Failed to delete session. Please try again.");
+    }
+  };
+
+  const handleClearAllHistory = async () => {
+    if (!window.confirm("Are you sure you want to delete ALL past session logs? This action is permanent and cannot be undone.")) {
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/interview/history', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deleteAll: true })
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to clear history.");
+      }
+
+      setHistoryList([]);
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "Failed to clear history. Please try again.");
+    }
   };
 
   // Start Session handler
@@ -602,9 +656,19 @@ export default function InterviewSection({ navigate, userData, updateUserData }:
 
           {/* HISTORY SECTION */}
           <div className="mt-12 pt-8 border-t border-outline-variant/15">
-            <div className="flex items-center gap-2 mb-6">
-              <Clock className="text-primary" size={20} />
-              <h3 className="font-headline font-bold text-lg text-primary">Session History Logs</h3>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <Clock className="text-primary" size={20} />
+                <h3 className="font-headline font-bold text-lg text-primary">Session History Logs</h3>
+              </div>
+              {historyList.length > 0 && (
+                <button
+                  onClick={handleClearAllHistory}
+                  className="text-xs text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100/80 px-3.5 py-2 rounded-xl font-bold flex items-center gap-1.5 transition-colors cursor-pointer border border-red-200/40"
+                >
+                  <Trash2 size={13} /> Clear All
+                </button>
+              )}
             </div>
 
             {loadingHistory ? (
@@ -633,7 +697,7 @@ export default function InterviewSection({ navigate, userData, updateUserData }:
                         setSessionState('profile-sync');
                       }
                     }}
-                    className="bg-surface-container-lowest border border-outline-variant/15 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-primary/20 transition-all cursor-pointer flex flex-col justify-between hover:-translate-y-0.5"
+                    className="bg-surface-container-lowest border border-outline-variant/15 rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-primary/20 transition-all cursor-pointer flex flex-col justify-between hover:-translate-y-0.5 group"
                   >
                     <div>
                       <div className="flex justify-between items-start mb-2">
@@ -644,13 +708,22 @@ export default function InterviewSection({ navigate, userData, updateUserData }:
                         }`}>
                           {sessionItem.mode === 'mock-interview' ? 'Mock Assessment' : 'Academic Sync'}
                         </span>
-                        <span className="text-[10px] text-on-surface-variant/50 font-semibold">
-                          {new Date(sessionItem.createdAt).toLocaleDateString(undefined, {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric'
-                          })}
-                        </span>
+                        <div className="flex items-center gap-1.5 -mt-1">
+                          <span className="text-[10px] text-on-surface-variant/50 font-semibold">
+                            {new Date(sessionItem.createdAt).toLocaleDateString(undefined, {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric'
+                            })}
+                          </span>
+                          <button
+                            onClick={(e) => handleDeleteSession(e, sessionItem.id)}
+                            className="p-1 rounded-md hover:bg-red-50 hover:text-red-600 text-on-surface-variant/40 opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer border border-transparent hover:border-red-200"
+                            title="Delete Session"
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        </div>
                       </div>
                       <h4 className="font-bold text-sm text-primary leading-snug">
                         {sessionItem.role} Developer
@@ -1126,7 +1199,7 @@ function TypewriterBubble({ text, speed = 12 }: { text: string; speed?: number }
   const [displayedText, setDisplayedText] = useState('');
   
   useEffect(() => {
-    const words = text.split(/(\s+)/).filter(w => w !== undefined); // split by whitespaces but retain them
+    const words = text.split(/(\s+)/).filter(Boolean); // split by whitespaces but retain them, filtering empty strings
     let index = 0;
     setDisplayedText('');
     

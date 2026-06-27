@@ -14,44 +14,44 @@ export interface UserFriendlyError {
 }
 
 const PROVIDERS = {
-  groq: {
-    name: "Groq",
-    model: "llama-3.1-8b-instant",
-    url: "https://api.groq.com/openai/v1/chat/completions",
-    envKey: "GROQ_API_KEY",
-    timeout: 3500, // 3.5s
-  },
   google: {
     name: "Google AI Studio",
-    model: "gemini-1.5-flash",
-    url: "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
-    envKey: "GEMINI_API_KEY", // fallback to AI_API_KEY if not specified
-    timeout: 8000, // 8s
+    model: "gemini-2.0-flash",
+    url: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+    envKey: "GEMINI_API_KEY",
+    timeout: 15000, // 15s
   },
-  mistral: {
-    name: "Mistral AI",
-    model: "open-mistral-7b",
-    url: "https://api.mistral.ai/v1/chat/completions",
-    envKey: "MISTRAL_API_KEY",
-    timeout: 8000, // 8s
-  },
-  cerebras: {
-    name: "Cerebras",
-    model: "llama3.1-8b",
-    url: "https://api.cerebras.ai/v1/chat/completions",
-    envKey: "CEREBRAS_API_KEY",
-    timeout: 5000, // 5s
+  groq: {
+    name: "Groq",
+    model: "llama-3.3-70b-versatile",
+    url: "https://api.groq.com/openai/v1/chat/completions",
+    envKey: "GROQ_API_KEY",
+    timeout: 15000, // 15s
   },
   openrouter: {
     name: "OpenRouter",
-    model: "meta-llama/llama-3-8b-instruct:free",
+    model: "google/gemma-4-31b-it:free",
     url: "https://openrouter.ai/api/v1/chat/completions",
     envKey: "OPENROUTER_API_KEY",
-    timeout: 10000, // 10s
+    timeout: 20000, // 20s
+  },
+  mistral: {
+    name: "Mistral AI",
+    model: "mistral-small-latest",
+    url: "https://api.mistral.ai/v1/chat/completions",
+    envKey: "MISTRAL_API_KEY",
+    timeout: 15000, // 15s
+  },
+  cerebras: {
+    name: "Cerebras",
+    model: "gpt-oss-120b",
+    url: "https://api.cerebras.ai/v1/chat/completions",
+    envKey: "CEREBRAS_API_KEY",
+    timeout: 15000, // 15s
   }
 };
 
-const DEFAULT_ROUTING_ORDER = ["groq", "google", "mistral", "cerebras", "openrouter"] as const;
+const DEFAULT_ROUTING_ORDER = ["google", "groq", "openrouter", "mistral", "cerebras"] as const;
 
 function getRoutingOrder(): string[] {
   if (process.env.AI_ROUTING_ORDER) {
@@ -265,6 +265,163 @@ async function callGoogle(provider: typeof PROVIDERS['google'], apiKey: string, 
   }
   return text;
 }
+
+async function callGoogleVision(
+  apiKey: string,
+  base64Data: string,
+  mimeType: string,
+  prompt: string,
+  options: AIOptions
+): Promise<string> {
+  const payload = {
+    contents: [
+      {
+        parts: [
+          { text: prompt },
+          {
+            inlineData: {
+              mimeType,
+              data: base64Data
+            }
+          }
+        ]
+      }
+    ],
+    generationConfig: {
+      responseMimeType: "application/json",
+      temperature: options.temperature ?? 0.2,
+      maxOutputTokens: options.maxOutputTokens
+    }
+  };
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+  const response = await fetchWithTimeout(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  }, 20000, options.signal);
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`HTTP_${response.status}: ${errorText}`);
+  }
+
+  const result = await response.json();
+  const text = result?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  if (!text.trim()) {
+    throw new Error("EMPTY_RESPONSE");
+  }
+  return text;
+}
+
+async function callOpenRouterVision(
+  apiKey: string,
+  base64Data: string,
+  mimeType: string,
+  prompt: string,
+  options: AIOptions
+): Promise<string> {
+  if (!mimeType.startsWith('image/')) {
+    throw new Error("OpenRouter vision currently only supports image formats.");
+  }
+
+  const payload = {
+    model: "nvidia/nemotron-nano-12b-v2-vl:free",
+    messages: [
+      {
+        role: "user",
+        content: [
+          { type: "text", text: prompt },
+          {
+            type: "image_url",
+            image_url: {
+              url: `data:${mimeType};base64,${base64Data}`
+            }
+          }
+        ]
+      }
+    ],
+    temperature: options.temperature ?? 0.2
+  };
+
+  const response = await fetchWithTimeout("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`
+    },
+    body: JSON.stringify(payload)
+  }, 20000, options.signal);
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`HTTP_${response.status}: ${errorText}`);
+  }
+
+  const result = await response.json();
+  const text = result?.choices?.[0]?.message?.content || "";
+  if (!text.trim()) {
+    throw new Error("EMPTY_RESPONSE");
+  }
+  return text;
+}
+async function callOpenAICompatibleVision(
+  url: string,
+  model: string,
+  apiKey: string,
+  base64Data: string,
+  mimeType: string,
+  prompt: string,
+  options: AIOptions
+): Promise<string> {
+  if (!mimeType.startsWith('image/')) {
+    throw new Error("OpenAI-compatible vision models only support image formats (PNG, JPG, WebP).");
+  }
+
+  const payload = {
+    model: model,
+    messages: [
+      {
+        role: "user",
+        content: [
+          { type: "text", text: prompt },
+          {
+            type: "image_url",
+            image_url: {
+              url: `data:${mimeType};base64,${base64Data}`
+            }
+          }
+        ]
+      }
+    ],
+    temperature: options.temperature ?? 0.2
+  };
+
+  const response = await fetchWithTimeout(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`
+    },
+    body: JSON.stringify(payload)
+  }, 20000, options.signal);
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`HTTP_${response.status}: ${errorText}`);
+  }
+
+  const result = await response.json();
+  const text = result?.choices?.[0]?.message?.content || "";
+  if (!text.trim()) {
+    throw new Error("EMPTY_RESPONSE");
+  }
+  return text;
+}
+
 
 export interface ChatMessage {
   role: string;
@@ -511,4 +668,73 @@ export async function generateJSON<T = unknown>(
   }
 
   return result.parsed as T;
+}
+
+export async function generateVisionResponse(
+  base64Data: string,
+  mimeType: string,
+  prompt: string,
+  options: AIOptions = {}
+): Promise<string> {
+  const routingOrder = getRoutingOrder();
+  let lastError: unknown = null;
+  let attempts = 0;
+
+  for (const providerKey of routingOrder) {
+    const provider = PROVIDERS[providerKey as keyof typeof PROVIDERS];
+    if (!provider) continue;
+
+    if (options.signal?.aborted) {
+      throw new Error('aborted');
+    }
+
+    let apiKey = process.env[provider.envKey];
+    if (providerKey === 'google' && !apiKey) {
+      apiKey = process.env.AI_API_KEY || process.env.GEMINI_API_KEY;
+    }
+
+    if (!apiKey || apiKey.trim() === "") {
+      logAI('WARN', 'provider_key_missing', { provider: provider.name });
+      continue;
+    }
+
+    attempts++;
+    const startTime = Date.now();
+    logAI('INFO', 'provider_try_vision_start', { provider: provider.name, attempt: attempts });
+
+    try {
+      let text = "";
+      if (providerKey === 'google') {
+        text = await callGoogleVision(apiKey, base64Data, mimeType, prompt, options);
+      } else if (providerKey === 'openrouter') {
+        if (!mimeType.startsWith('image/')) {
+          logAI('WARN', 'openrouter_vision_pdf_skip', { provider: provider.name });
+          continue;
+        }
+        text = await callOpenRouterVision(apiKey, base64Data, mimeType, prompt, options);
+      } else if (providerKey === 'groq') {
+        logAI('INFO', 'groq_vision_unsupported_skip', { provider: provider.name });
+        continue;
+      } else {
+        logAI('INFO', 'provider_vision_unsupported_skip', { provider: provider.name });
+        continue;
+      }
+
+      const latency = Date.now() - startTime;
+      logAI('INFO', 'provider_try_vision_success', { provider: provider.name, latencyMs: latency, attempts });
+      return text;
+    } catch (error: any) {
+      const latency = Date.now() - startTime;
+      lastError = error;
+
+      logAI('WARN', 'provider_try_vision_failed', {
+        provider: provider.name,
+        latencyMs: latency,
+        errorMessage: error instanceof Error ? error.message : String(error)
+      });
+    }
+  }
+
+  logAI('ERROR', 'all_vision_providers_failed', { totalAttempts: attempts });
+  throw new Error(`ALL_PROVIDERS_FAILED: Last error: ${lastError instanceof Error ? lastError.message : lastError}`);
 }

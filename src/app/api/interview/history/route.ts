@@ -51,3 +51,50 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Failed to save session history' }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user || !(session.user as any).id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    const userId = (session.user as any).id;
+
+    const body = await request.json();
+    const { sessionId, deleteAll } = body;
+
+    if (deleteAll) {
+      // Delete all sessions for the current user
+      const deleteResult = await prisma.interviewSession.deleteMany({
+        where: { userId }
+      });
+      return NextResponse.json({ success: true, count: deleteResult.count });
+    }
+
+    if (!sessionId) {
+      return NextResponse.json({ error: 'Session ID or deleteAll flag is required.' }, { status: 400 });
+    }
+
+    // Verify session exists and belongs to the user
+    const existing = await prisma.interviewSession.findUnique({
+      where: { id: sessionId }
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: 'Session not found.' }, { status: 404 });
+    }
+
+    if (existing.userId !== userId) {
+      return NextResponse.json({ error: 'Unauthorized deletion request.' }, { status: 403 });
+    }
+
+    await prisma.interviewSession.delete({
+      where: { id: sessionId }
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    console.error('Delete interview history error:', error);
+    return NextResponse.json({ error: 'Failed to delete session history' }, { status: 500 });
+  }
+}
