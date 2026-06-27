@@ -21,6 +21,7 @@ model User {
   jobApplications   JobApplication[]
   projectBlueprints ProjectBlueprint[]
   interviewSessions InterviewSession[]
+  savedProjects     SavedProject[]
   resetToken        String?
   resetTokenExpires DateTime?
 }
@@ -129,6 +130,21 @@ model InterviewSession {
   overallScore Int?
   feedback     String?  // Stringified JSON payload (strengths, improvements, qaBreakdown)
   createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SavedProject {
+  id             String   @id @default(cuid())
+  userId         String
+  title          String
+  demand         String
+  description    String
+  stack          String   // JSON string of string[]
+  hook           String
+  lpaTip         String
+  killerQuestion String
+  createdAt      DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

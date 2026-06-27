@@ -6,9 +6,10 @@ import { Menu, LogOut, Settings, ChevronDown } from 'lucide-react';
 
 interface Props {
   navigate?: (mode: string) => void;
+  onMenuClick?: () => void;
 }
 
-export default function TopNav({ navigate }: Props) {
+export default function TopNav({ navigate, onMenuClick }: Props) {
   const { data: session } = useSession();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -20,7 +21,11 @@ export default function TopNav({ navigate }: Props) {
     <header className="h-[72px] border-b border-outline-variant/15 flex items-center justify-between px-6 md:px-10 bg-surface-container-lowest/80 backdrop-blur-xl z-30 shrink-0 sticky top-0">
       <div className="flex items-center gap-4">
         {/* Mobile menu trigger */}
-        <button className="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-surface-container-low text-primary">
+        <button 
+          onClick={onMenuClick}
+          className="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-surface-container-low text-primary hover:bg-surface-container-high transition-colors cursor-pointer"
+          aria-label="Open menu"
+        >
           <Menu size={20} />
         </button>
         

@@ -16,27 +16,27 @@ export async function POST(request: Request) {
       techStack,
     });
 
-    const result = await generateJSON<Array<{
-      title: string;
-      demand: string;
-      description: string;
-      stack: string[];
-      hook: string;
-      lpaTip: string;
-      killerQuestion: string;
-    }>>(prompt, { maxOutputTokens: 800, temperature: 0.8 });
+    const result = await generateJSON<any>(prompt, { maxOutputTokens: 1200, temperature: 0.8 });
+
+    let projectsArray = result;
+    if (!Array.isArray(result) && typeof result === 'object' && result !== null) {
+      const arrayKey = Object.keys(result).find(key => Array.isArray(result[key]));
+      if (arrayKey) {
+        projectsArray = result[arrayKey];
+      }
+    }
 
     // Validate it's an array
-    if (!Array.isArray(result)) {
-      console.error(`[AI:${requestId}] Projects result is not an array`);
+    if (!Array.isArray(projectsArray)) {
+      console.error(`[AI:${requestId}] Projects result is not an array`, result);
       return NextResponse.json(
         { error: 'AI returned an unexpected format. Please try again.', retryable: true },
         { status: 500 }
       );
     }
 
-    console.log(`[AI:${requestId}] Generated ${result.length} projects`);
-    return NextResponse.json(result);
+    console.log(`[AI:${requestId}] Generated ${projectsArray.length} projects`);
+    return NextResponse.json(projectsArray);
   } catch (error: unknown) {
     console.error(`[AI:${requestId}] Project generation failed`, error);
     const sanitized = sanitizeAIError(error);

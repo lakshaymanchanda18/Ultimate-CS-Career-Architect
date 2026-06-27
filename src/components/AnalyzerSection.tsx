@@ -89,9 +89,9 @@ export default function AnalyzerSection({ navigate, userData, updateUserData }: 
     }
   }, [userData.college, userData.specialization, userData.cgpa, userData.techStack, userData.experience]);
 
-  // Auto-start analysis on mount if no results
+  // Auto-start analysis on mount or profile load if no results
   useEffect(() => {
-    if (!userData.analysisResults) {
+    if (!userData.analysisResults && userData.college && userData.experience) {
       analyze();
     }
 
@@ -101,7 +101,7 @@ export default function AnalyzerSection({ navigate, userData, updateUserData }: 
         abortRef.current.abort();
       }
     };
-  }, []);
+  }, [userData.college, userData.experience, userData.analysisResults, analyze]);
 
   // Determine if this is a configuration error (not retryable)
   const isConfigError = error && !error.retryable;
@@ -132,16 +132,21 @@ export default function AnalyzerSection({ navigate, userData, updateUserData }: 
   }
 
   if (error || !userData.analysisResults) {
+    const isProfileIncomplete = !error && (!userData.college || !userData.experience);
     return (
       <section className="fade-in flex flex-col w-full max-w-6xl mx-auto h-full items-center justify-center">
-        <div className="bg-surface-container-lowest p-8 md:p-10 rounded-3xl border border-red-200 shadow-lg text-center max-w-md">
-          <div className={`w-16 h-16 ${isConfigError ? 'bg-amber-50 text-amber-600' : 'bg-red-50 text-red-500'} rounded-2xl flex items-center justify-center mx-auto mb-6`}>
-            {isConfigError ? <ShieldAlert size={32} /> : <AlertTriangle size={32} />}
+        <div className={`bg-surface-container-lowest p-8 md:p-10 rounded-3xl border ${isProfileIncomplete ? 'border-outline-variant/15' : 'border-red-200'} shadow-lg text-center max-w-md`}>
+          <div className={`w-16 h-16 ${isProfileIncomplete ? 'bg-primary-container text-secondary-fixed' : isConfigError ? 'bg-amber-50 text-amber-600' : 'bg-red-50 text-red-500'} rounded-2xl flex items-center justify-center mx-auto mb-6`}>
+            {isProfileIncomplete ? <Cpu size={32} /> : isConfigError ? <ShieldAlert size={32} /> : <AlertTriangle size={32} />}
           </div>
           <h3 className="text-xl font-headline font-bold text-primary mb-3">
-            {isConfigError ? 'Configuration Issue' : 'Analysis Failed'}
+            {isProfileIncomplete ? 'No Analysis Found' : isConfigError ? 'Configuration Issue' : 'Analysis Failed'}
           </h3>
-          <p className="text-on-surface-variant text-[15px] mb-8">{error?.message || 'No data available. Please start an interview first.'}</p>
+          <p className="text-on-surface-variant text-[15px] mb-8">
+            {isProfileIncomplete 
+              ? 'Complete your profile builder interview to run a structured resume analysis.' 
+              : error?.message || 'No data available. Please start an interview first.'}
+          </p>
           
           {error?.retryable && (
             <button 
@@ -159,7 +164,7 @@ export default function AnalyzerSection({ navigate, userData, updateUserData }: 
               onClick={() => navigate('interview')}
               className="w-full bg-primary text-on-primary-fixed py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:shadow-lg transition-all"
             >
-              Start Interview First
+              {isProfileIncomplete ? 'Start Profile Builder' : 'Start Interview First'}
             </button>
           )}
 

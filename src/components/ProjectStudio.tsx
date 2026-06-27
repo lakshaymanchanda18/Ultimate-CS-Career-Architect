@@ -52,11 +52,38 @@ export default function ProjectStudio({ title, techStack, navigate }: ProjectStu
   useEffect(() => {
     if (blueprint?.architecture && mermaidRef.current) {
       mermaidRef.current.innerHTML = '';
-      mermaid.render('mermaid-graph', blueprint.architecture).then((result) => {
+      
+      let sanitizedArchitecture = blueprint.architecture;
+      // Fix common LLM mistakes like "-->|text|> B" instead of "-->|text| B"
+      sanitizedArchitecture = sanitizedArchitecture.replace(/-->\s*\|([^|]+)\|>/g, '-->|$1|');
+      
+      try {
+        mermaid.render('mermaid-graph', sanitizedArchitecture)
+          .then((result) => {
+            if (mermaidRef.current) {
+              mermaidRef.current.innerHTML = result.svg;
+            }
+          })
+          .catch((err) => {
+            console.error("Mermaid parsing failed via promise:", err);
+            if (mermaidRef.current) {
+              mermaidRef.current.innerHTML = `
+                <div class="text-xs text-red-500 bg-red-50/50 p-4 rounded-xl border border-red-100 font-mono text-left max-w-md mx-auto my-6">
+                  <strong>Failed to render architecture diagram:</strong><br/>
+                  ${err instanceof Error ? err.message : String(err)}
+                </div>`;
+            }
+          });
+      } catch (err) {
+        console.error("Mermaid render synchronous exception:", err);
         if (mermaidRef.current) {
-          mermaidRef.current.innerHTML = result.svg;
+          mermaidRef.current.innerHTML = `
+            <div class="text-xs text-red-500 bg-red-50/50 p-4 rounded-xl border border-red-100 font-mono text-left max-w-md mx-auto my-6">
+              <strong>Failed to render architecture diagram:</strong><br/>
+              ${err instanceof Error ? err.message : String(err)}
+            </div>`;
         }
-      });
+      }
     }
   }, [blueprint]);
 

@@ -520,7 +520,7 @@ export default function InterviewSection({ navigate, userData, updateUserData }:
       {sessionState === 'setup' && (
         <div className="flex-1 flex flex-col justify-center">
           <div className="mb-10 text-center lg:text-left">
-            <span className="text-[10px] font-bold tracking-widest text-primary uppercase bg-primary-container px-3 py-1 rounded-full">
+            <span className="text-[10px] font-bold tracking-widest text-secondary uppercase bg-secondary/15 px-3 py-1.5 rounded-full">
               Recruiter Hub • Phase 01
             </span>
             <h2 className="text-3xl md:text-5xl font-headline font-extrabold text-primary mt-4 mb-3 tracking-tight">
@@ -590,7 +590,7 @@ export default function InterviewSection({ navigate, userData, updateUserData }:
             {/* CARD B: MOCK INTERVIEW */}
             <div className="bg-surface-container-lowest rounded-3xl p-8 border border-outline-variant/15 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
               <div>
-                <div className="w-12 h-12 rounded-2xl bg-primary-container text-white flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-2xl bg-primary-container/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <Award className="text-primary" size={24} />
                 </div>
                 <h3 className="font-headline font-bold text-xl mb-3 text-primary">SDE Technical Mock Interview</h3>
