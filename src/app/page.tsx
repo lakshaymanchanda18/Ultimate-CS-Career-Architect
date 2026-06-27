@@ -116,6 +116,7 @@ function DashboardApp() {
 
   const restoreAnalysis = (analysis: any, profile: any) => {
     setUserData({
+      name: profile?.name || userData.name || "",
       college: profile?.college || "",
       specialization: profile?.specialization || "",
       cgpa: profile?.cgpa || "",

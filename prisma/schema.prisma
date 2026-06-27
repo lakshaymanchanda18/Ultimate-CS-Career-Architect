@@ -20,6 +20,7 @@ model User {
   analyses          Analysis[]
   jobApplications   JobApplication[]
   projectBlueprints ProjectBlueprint[]
+  interviewSessions InterviewSession[]
   resetToken        String?
   resetTokenExpires DateTime?
 }
@@ -115,6 +116,19 @@ model ProjectBlueprint {
   techStack       String
   tasks           String   // JSON string of step-by-step tasks
   createdAt       DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model InterviewSession {
+  id           String   @id @default(cuid())
+  userId       String
+  mode         String   // 'profile-builder' or 'mock-interview'
+  role         String
+  level        String
+  overallScore Int?
+  feedback     String?  // Stringified JSON payload (strengths, improvements, qaBreakdown)
+  createdAt    DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
