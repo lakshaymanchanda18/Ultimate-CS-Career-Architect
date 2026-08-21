@@ -1,6 +1,5 @@
-"use client";
-
-import { Home, Sparkles, Plus, Mic, BarChart2, Lightbulb, GraduationCap, Settings, HelpCircle, LogIn, LogOut, X } from 'lucide-react';
+import { useState } from 'react';
+import { Home, Sparkles, Plus, Mic, BarChart2, Lightbulb, GraduationCap, Settings, HelpCircle, LogIn, LogOut, X, Info } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
@@ -14,6 +13,12 @@ interface SidebarProps {
 export default function Sidebar({ currentMode, navigate, isOpen, onClose }: SidebarProps) {
   const { data: session } = useSession();
   const router = useRouter();
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 4000);
+  };
 
   const navItemClass = (mode: string) => {
     const base = "flex items-center gap-3.5 px-4 py-3.5 rounded-xl transition-all duration-300 group cursor-pointer ";
@@ -26,6 +31,11 @@ export default function Sidebar({ currentMode, navigate, isOpen, onClose }: Side
   const handleNav = (mode: string) => {
     navigate(mode);
     if (onClose) onClose();
+  };
+
+  const handleNewResume = () => {
+    showToast("Resume uploading coming soon!");
+    handleNav('interview');
   };
 
   return (
@@ -64,8 +74,8 @@ export default function Sidebar({ currentMode, navigate, isOpen, onClose }: Side
           
           <div className="px-6 mb-8">
             <button 
-              onClick={() => handleNav('interview')} 
-              className="w-full bg-primary text-on-primary-fixed rounded-xl py-3.5 flex items-center justify-center gap-2 font-semibold hover:shadow-lg hover:shadow-primary/20 transition-all duration-300"
+              onClick={handleNewResume} 
+              className="w-full bg-primary text-on-primary-fixed rounded-xl py-3.5 flex items-center justify-center gap-2 font-semibold hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 cursor-pointer"
             >
               <Plus size={18} /> New Resume
             </button>
@@ -117,6 +127,21 @@ export default function Sidebar({ currentMode, navigate, isOpen, onClose }: Side
           </div>
         </div>
       </aside>
+
+      {/* Floating Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-[100] bg-surface-container-high/95 backdrop-blur-xl border border-secondary/30 text-primary px-5 py-4 rounded-2xl shadow-2xl flex items-center gap-3.5 animate-in fade-in slide-in-from-bottom-5 duration-300 max-w-sm">
+          <div className="w-9 h-9 rounded-xl bg-secondary/15 text-secondary flex items-center justify-center shrink-0">
+            <Sparkles size={18} />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-primary">{toastMessage}</p>
+            <p className="text-[11px] text-on-surface-variant/80 mt-0.5 leading-snug">
+              Direct PDF upload feature coming soon! Use our AI Profile Builder to construct your SDE resume instantly.
+            </p>
+          </div>
+        </div>
+      )}
     </>
   );
 }

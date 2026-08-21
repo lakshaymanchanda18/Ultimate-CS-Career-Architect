@@ -70,6 +70,12 @@ export default function InterviewSection({ navigate, userData, updateUserData }:
   // Saving state for DB Profile Sync
   const [savingProfile, setSavingProfile] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 4000);
+  };
 
   // History states
   const [historyList, setHistoryList] = useState<any[]>([]);
@@ -555,11 +561,17 @@ export default function InterviewSection({ navigate, userData, updateUserData }:
                 </div>
 
                 {/* Resume Upload Box */}
-                <div className="mb-6 p-4 rounded-2xl bg-surface-container-low border border-dashed border-outline-variant/40 hover:border-secondary/40 transition-colors relative flex flex-col items-center justify-center text-center">
+                <div 
+                  onClick={() => showToast("Resume uploading coming soon!")}
+                  className="mb-6 p-4 rounded-2xl bg-surface-container-low border border-dashed border-outline-variant/40 hover:border-secondary/40 transition-colors relative flex flex-col items-center justify-center text-center cursor-pointer"
+                >
                   <input 
                     type="file" 
                     accept=".pdf,image/png,image/jpeg"
-                    onChange={handleResumeUpload}
+                    onChange={(e) => {
+                      showToast("Resume uploading coming soon!");
+                      handleResumeUpload(e);
+                    }}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                     disabled={uploading}
                   />
@@ -1188,6 +1200,19 @@ export default function InterviewSection({ navigate, userData, updateUserData }:
               </button>
             </div>
 
+          </div>
+        </div>
+      {/* Floating Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-[100] bg-surface-container-high/95 backdrop-blur-xl border border-secondary/30 text-primary px-5 py-4 rounded-2xl shadow-2xl flex items-center gap-3.5 animate-in fade-in slide-in-from-bottom-5 duration-300 max-w-sm">
+          <div className="w-9 h-9 rounded-xl bg-secondary/15 text-secondary flex items-center justify-center shrink-0">
+            <Sparkles size={18} />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-primary">{toastMessage}</p>
+            <p className="text-[11px] text-on-surface-variant/80 mt-0.5 leading-snug">
+              Direct PDF upload feature is coming soon! Use our AI Profile Builder below to generate your resume.
+            </p>
           </div>
         </div>
       )}
