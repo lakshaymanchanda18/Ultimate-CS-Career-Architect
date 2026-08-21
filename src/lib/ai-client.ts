@@ -16,10 +16,10 @@ export interface UserFriendlyError {
 const PROVIDERS = {
   google: {
     name: "Google AI Studio",
-    model: "gemini-flash-latest",
-    url: "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent",
+    model: "gemini-3.5-flash-lite",
+    url: "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent",
     envKey: "GEMINI_API_KEY",
-    timeout: 15000, // 15s
+    timeout: 30000, // 30s (handles Vercel cold starts)
   },
   groq: {
     name: "Groq",
@@ -294,7 +294,7 @@ async function callGoogleVision(
     }
   };
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${apiKey}`;
 
   const response = await fetchWithTimeout(url, {
     method: "POST",
