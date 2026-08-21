@@ -19,7 +19,7 @@ const PROVIDERS = {
     model: "gemini-3.5-flash-lite",
     url: "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent",
     envKey: "GEMINI_API_KEY",
-    timeout: 30000, // 30s (handles Vercel cold starts)
+    timeout: 12000, // 12s
   },
   groq: {
     name: "Groq",

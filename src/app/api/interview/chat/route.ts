@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { generateChatResponse } from '@/lib/ai-client';
 
+export const maxDuration = 60;
+export const dynamic = 'force-dynamic';
+
 const PROFILE_BUILDER_SYSTEM_PROMPT = `You are a professional CS career coach helping a student build their resume profile.
 Your goal is to conduct a short conversational interview to collect the following:
 1. College or University name and Specialization/Major (and CGPA if they want to share).
