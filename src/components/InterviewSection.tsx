@@ -1202,6 +1202,7 @@ export default function InterviewSection({ navigate, userData, updateUserData }:
 
           </div>
         </div>
+      )}
       {/* Floating Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-[100] bg-surface-container-high/95 backdrop-blur-xl border border-secondary/30 text-primary px-5 py-4 rounded-2xl shadow-2xl flex items-center gap-3.5 animate-in fade-in slide-in-from-bottom-5 duration-300 max-w-sm">
