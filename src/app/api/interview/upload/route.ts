@@ -18,7 +18,6 @@ if (typeof global !== 'undefined') {
 
 export async function POST(request: Request) {
   try {
-    const pdf = require('pdf-parse');
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -45,32 +44,42 @@ export async function POST(request: Request) {
 
     if (mimeType === 'application/pdf') {
       try {
+        let pdf: any = null;
+        try {
+          pdf = require('pdf-parse');
+        } catch (requireErr) {
+          console.warn("pdf-parse require failed, will use Vision fallback:", requireErr);
+        }
+
         const pdfBuffer = Buffer.from(buffer);
         let textContent = "";
 
-        if (pdf && typeof pdf.PDFParse === 'function') {
-          const parser = new pdf.PDFParse({ data: pdfBuffer });
-          await parser.load();
-          const parsedResult = await parser.getText();
-          textContent = parsedResult.text || "";
-          await parser.destroy();
-        } else if (typeof pdf === 'function') {
-          if (pdf.toString().startsWith('class ')) {
-            const parser = new (pdf as any)({ data: pdfBuffer });
+        if (pdf) {
+          if (typeof pdf.PDFParse === 'function') {
+            const parser = new pdf.PDFParse({ data: pdfBuffer });
             await parser.load();
             const parsedResult = await parser.getText();
-            textContent = parsedResult.text || "";
+            textContent = typeof parsedResult === 'string' ? parsedResult : (parsedResult?.text || "");
             await parser.destroy();
-          } else {
-            const parsed = await (pdf as any)(pdfBuffer);
-            textContent = parsed.text || "";
+          } else if (typeof pdf === 'function') {
+            if (pdf.toString().startsWith('class ')) {
+              const parser = new (pdf as any)({ data: pdfBuffer });
+              await parser.load();
+              const parsedResult = await parser.getText();
+              textContent = typeof parsedResult === 'string' ? parsedResult : (parsedResult?.text || "");
+              await parser.destroy();
+            } else {
+              const parsed = await (pdf as any)(pdfBuffer);
+              textContent = typeof parsed === 'string' ? parsed : (parsed?.text || "");
+            }
+          } else if (typeof pdf.default === 'function') {
+            const parsed = await pdf.default(pdfBuffer);
+            textContent = typeof parsed === 'string' ? parsed : (parsed?.text || "");
           }
-        } else {
-          throw new Error("Unsupported pdf-parse library structure");
         }
 
-        if (!textContent.trim()) {
-          throw new Error("PDF text content is empty, falling back to vision parsing.");
+        if (!textContent || !textContent.trim()) {
+          throw new Error("PDF text content is empty or unreadable via pdf-parse, falling back to vision parsing.");
         }
 
         const promptText = `You are a premium resume parsing SDE recruiter.
