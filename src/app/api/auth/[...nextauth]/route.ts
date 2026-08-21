@@ -3,6 +3,25 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
 
+const expectedAuthErrors = new Set([
+  "Please enter your email and password.",
+  "An account with this email address already exists.",
+  "No account found with this email. Please sign up first.",
+  "Incorrect password. Please try again.",
+]);
+
+function isDatabaseAvailabilityError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  return (
+    message.includes("Unable to open the database file") ||
+    message.includes("Error querying the database") ||
+    message.includes("Can't reach database server") ||
+    message.includes("Timed out fetching a new connection") ||
+    message.includes("PrismaClientInitializationError") ||
+    message.includes("PrismaClientKnownRequestError")
+  );
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -14,57 +33,72 @@ export const authOptions: NextAuthOptions = {
         action: { label: "Action", type: "text" }
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error("Please enter your email and password.");
-        }
-
-        const email = credentials.email.toLowerCase();
-
-        let user = await prisma.user.findUnique({
-          where: { email }
-        });
-
-        // Registration Flow
-        if (credentials.action === "signup") {
-          if (user) {
-            throw new Error("An account with this email address already exists.");
+        try {
+          if (!credentials?.email || !credentials?.password) {
+            throw new Error("Please enter your email and password.");
           }
-          const hashedPassword = await bcrypt.hash(credentials.password, 10);
-          const signupName = (credentials.name && credentials.name !== "undefined" && credentials.name.trim() !== "") 
-            ? credentials.name 
-            : email.split('@')[0];
 
-          user = await prisma.user.create({
-            data: {
-              email,
-              name: signupName,
-              password: hashedPassword
+          const email = credentials.email.toLowerCase();
+
+          let user = await prisma.user.findUnique({
+            where: { email }
+          });
+
+          // Registration Flow
+          if (credentials.action === "signup") {
+            if (user) {
+              throw new Error("An account with this email address already exists.");
             }
-          });
-          return user;
-        }
+            const hashedPassword = await bcrypt.hash(credentials.password, 10);
+            const signupName = (credentials.name && credentials.name !== "undefined" && credentials.name.trim() !== "") 
+              ? credentials.name 
+              : email.split('@')[0];
 
-        // Login Flow
-        if (!user) {
-          throw new Error("No account found with this email. Please sign up first.");
-        }
+            user = await prisma.user.create({
+              data: {
+                email,
+                name: signupName,
+                password: hashedPassword
+              }
+            });
+            return user;
+          }
 
-        const isPasswordValid = await bcrypt.compare(credentials.password, user.password || '');
+          // Login Flow
+          if (!user) {
+            throw new Error("No account found with this email. Please sign up first.");
+          }
+
+          const isPasswordValid = await bcrypt.compare(credentials.password, user.password || '');
         
-        if (!isPasswordValid) {
-          throw new Error("Incorrect password. Please try again.");
-        }
+          if (!isPasswordValid) {
+            throw new Error("Incorrect password. Please try again.");
+          }
 
-        // Auto-correct corrupted "undefined" or null name in database
-        if (!user.name || user.name === "undefined" || user.name.trim() === "") {
-          const fallbackName = email.split('@')[0];
-          user = await prisma.user.update({
-            where: { id: user.id },
-            data: { name: fallbackName }
-          });
-        }
+          // Auto-correct corrupted "undefined" or null name in database
+          if (!user.name || user.name === "undefined" || user.name.trim() === "") {
+            const fallbackName = email.split('@')[0];
+            user = await prisma.user.update({
+              where: { id: user.id },
+              data: { name: fallbackName }
+            });
+          }
 
-        return user;
+          return user;
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          if (expectedAuthErrors.has(message)) {
+            throw error;
+          }
+
+          console.error("Credentials auth failed:", error);
+
+          if (isDatabaseAvailabilityError(error)) {
+            throw new Error("Account service is temporarily unavailable. Please check the production database configuration.");
+          }
+
+          throw new Error("Unable to complete authentication right now. Please try again.");
+        }
       }
     })
   ],
