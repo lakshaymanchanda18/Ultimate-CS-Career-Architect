@@ -28,12 +28,12 @@ export interface UserData {
 export default function Home() {
   const { data: session, status } = useSession();
 
-  if (status === "loading") {
+  if (status === "loading" && !session) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-surface">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm font-semibold text-on-surface-variant animate-pulse font-body">Verifying session...</p>
+          <p className="text-sm font-semibold text-on-surface-variant animate-pulse font-body">Loading application...</p>
         </div>
       </div>
     );

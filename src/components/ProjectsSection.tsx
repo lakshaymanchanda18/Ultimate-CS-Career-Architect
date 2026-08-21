@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Sparkles, RefreshCw, AlertTriangle, Zap, Bookmark, BookmarkCheck, Trash2 } from 'lucide-react';
+import { Sparkles, RefreshCw, AlertTriangle, Zap, Bookmark, BookmarkCheck, Trash2, Loader2 } from 'lucide-react';
 import { UserData } from '../app/page';
 
 interface Props {
@@ -213,8 +213,22 @@ export default function ProjectsSection({ userData, openStudio, exploreProjects,
                             : 'bg-surface-container-lowest border-outline-variant/30 text-on-surface-variant hover:text-primary hover:border-primary/50'
                         }`}
                       >
-                        {isSaved ? <BookmarkCheck size={14} /> : <Bookmark size={14} />}
-                        {isSaved ? 'Saved' : 'Save Project'}
+                        {savingId === p.title ? (
+                          <>
+                            <Loader2 size={14} className="animate-spin" />
+                            Saving...
+                          </>
+                        ) : isSaved ? (
+                          <>
+                            <BookmarkCheck size={14} />
+                            Saved
+                          </>
+                        ) : (
+                          <>
+                            <Bookmark size={14} />
+                            Save Project
+                          </>
+                        )}
                       </button>
                     </div>
                     <h3 className="text-2xl md:text-3xl font-headline font-extrabold text-primary leading-tight tracking-tight">{p.title}</h3>
