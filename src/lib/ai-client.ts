@@ -16,8 +16,8 @@ export interface UserFriendlyError {
 const PROVIDERS = {
   google: {
     name: "Google AI Studio",
-    model: "gemini-2.0-flash",
-    url: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+    model: "gemini-3.6-flash",
+    url: "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent",
     envKey: "GEMINI_API_KEY",
     timeout: 15000, // 15s
   },
@@ -294,7 +294,7 @@ async function callGoogleVision(
     }
   };
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
 
   const response = await fetchWithTimeout(url, {
     method: "POST",
