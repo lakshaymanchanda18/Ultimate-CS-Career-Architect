@@ -32,6 +32,9 @@ export default function TopNav({ navigate, onMenuClick }: Props) {
         <div className="hidden md:flex items-center gap-8 font-semibold text-[14px] text-on-surface-variant">
           <button onClick={() => navigate && navigate('dashboard')} className="hover:text-primary transition-colors hover:scale-105 transform duration-200 cursor-pointer">My Resumes</button>
           <button onClick={() => navigate && navigate('job-board')} className="hover:text-primary transition-colors hover:scale-105 transform duration-200 cursor-pointer">Job Board</button>
+          <button onClick={() => navigate && navigate('agent')} className="hover:text-primary text-secondary transition-colors hover:scale-105 transform duration-200 cursor-pointer flex items-center gap-1.5 font-bold">
+            Career Agent
+          </button>
         </div>
       </div>
 

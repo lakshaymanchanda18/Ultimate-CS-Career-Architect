@@ -13,6 +13,7 @@ import JobBoardSection from "@/components/JobBoardSection";
 import ProjectsSection from "@/components/ProjectsSection";
 import ProjectStudio from "@/components/ProjectStudio";
 import SettingsSection from "@/components/SettingsSection";
+import AgentSection from "@/components/AgentSection";
 import LandingPage from "@/components/LandingPage";
 
 export interface UserData {
@@ -60,7 +61,7 @@ export default function Home() {
 function DashboardApp() {
   const searchParams = useSearchParams();
   const querySection = searchParams.get("section");
-  const initialSection = ["discovery", "interview", "analyzer", "dashboard", "job-board", "projects", "settings"].includes(querySection || "") ? querySection! : "discovery";
+  const initialSection = ["discovery", "interview", "analyzer", "dashboard", "job-board", "projects", "settings", "agent"].includes(querySection || "") ? querySection! : "discovery";
 
   const [appMode, setAppMode] = useState(initialSection); // logical state
   const [displayMode, setDisplayMode] = useState(initialSection); // render state
@@ -176,6 +177,7 @@ function DashboardApp() {
               )}
               {displayMode === "project-studio" && activeProject && <ProjectStudio title={activeProject.title} techStack={activeProject.techStack} navigate={navigate} />}
               {displayMode === "settings" && <SettingsSection userData={userData} updateUserData={updateUserData} />}
+              {displayMode === "agent" && <AgentSection navigate={navigate} />}
             </>
           )}
         </div>

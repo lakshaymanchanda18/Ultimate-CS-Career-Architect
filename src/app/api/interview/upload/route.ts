@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '../../auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { generateVisionResponse, generateAIResponse } from '@/lib/ai-client';
 
 // Polyfill browser globals for node environment to prevent pdfjs/pdf-parse from crashing during build

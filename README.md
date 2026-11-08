@@ -119,10 +119,17 @@ This platform provides an integrated suite of AI-powered tools that address each
 - Tech stack specification
 - Exportable project blueprints
 
-#### **8. Settings**
+#### **8. Career Architect Agent (Supervised Agentic AI)**
+- Multi-turn autonomous strategist with bounded tool execution (max 4 tools per run)
+- Inspects real candidate context (Profile, Resume ATS audits, Mock Interviews, Saved Projects, Job Tracker)
+- Generates structured, milestone-driven preparation roadmaps
+- Zero-autonomous writes: requires explicit candidate preview & approval before persisting career plans
+- Full audit trace with tool latency and step-by-step reasoning summary
+
+#### **9. Settings**
 - User profile management
 - Preferences and account settings
-- System configuration
+- System configuration & Career Agent guardrails overview
 
 ---
 
@@ -360,6 +367,9 @@ AI_API_KEY="your-google-gemini-api-key-here"
 # NextAuth Configuration (if implementing auth)
 NEXTAUTH_SECRET="generate-a-random-secret-key"
 NEXTAUTH_URL="http://localhost:3001"
+
+# Career Architect Agent Feature Flag
+CAREER_AGENT_ENABLED="true"
 ```
 
 ### Step 4: Setup Database
@@ -408,6 +418,7 @@ npx prisma studio
 | `GEMINI_API_KEY` | String | ⚠️ Optional | Alternative key variable name |
 | `NEXTAUTH_SECRET` | String | ⚠️ Optional | For session encryption (implement auth) |
 | `NEXTAUTH_URL` | String | ⚠️ Optional | Authentication callback URL |
+| `CAREER_AGENT_ENABLED` | String (`true`/`false`) | ⚠️ Optional | Feature flag to enable/disable the supervised Career Architect Agent |
 
 ### AI Model Configuration
 

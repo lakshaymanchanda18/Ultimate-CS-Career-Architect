@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '../../auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { generateJSON, sanitizeAIError } from '@/lib/ai-client';
-import { buildBlueprintPrompt } from '@/lib/prompts';
+import { sanitizeAIError } from '@/lib/ai-client';
+import { draftBlueprintService } from '@/lib/services/blueprint-service';
 
 export async function POST(request: Request) {
   const requestId = Math.random().toString(36).substring(2, 10);
@@ -20,21 +20,7 @@ export async function POST(request: Request) {
 
     console.log(`[AI:${requestId}] Blueprint generation started`, { title });
 
-    const prompt = buildBlueprintPrompt({ title, techStack });
-
-    const result = await generateJSON<{
-      architecture: string;
-      tasks: string[];
-    }>(prompt, { maxOutputTokens: 600, temperature: 0.7 });
-
-    // Validate result shape
-    if (!result.architecture || !Array.isArray(result.tasks)) {
-      console.error(`[AI:${requestId}] Blueprint result has invalid shape`);
-      return NextResponse.json(
-        { error: 'AI returned an incomplete blueprint. Please try again.', retryable: true },
-        { status: 500 }
-      );
-    }
+    const result = await draftBlueprintService({ title, techStack });
 
     console.log(`[AI:${requestId}] Blueprint generated with ${result.tasks.length} tasks`);
 

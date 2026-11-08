@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Settings, Monitor, Sun, Moon, Database, Trash2 } from 'lucide-react';
+import { Settings, Monitor, Sun, Moon, Database, Trash2, Compass, ShieldCheck } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
 import { useSession } from 'next-auth/react';
 import { UserData } from '../app/page';
@@ -267,6 +267,36 @@ export default function SettingsSection({ userData, updateUserData }: Props) {
               </div>
               <span className="font-bold text-[14px]">System Setting</span>
             </button>
+          </div>
+        </div>
+
+        {/* Career Agent Configuration */}
+        <div className="bg-surface-container-lowest p-8 rounded-3xl border border-outline-variant/15 shadow-sm card-hover">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-headline font-bold text-lg text-primary flex items-center gap-2">
+              <Compass size={20} className="text-secondary" /> Career Agent AI
+            </h3>
+            <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500 border border-emerald-500/20 text-xs font-bold uppercase">
+              Active (v1 Supervised)
+            </span>
+          </div>
+          <p className="text-xs text-on-surface-variant mb-6 leading-relaxed">
+            The Career Architect Agent runs bounded orchestrations to inspect candidate profile data, ATS audits, and interview records. All actions strictly require explicit confirmation before writing roadmaps to your account.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs mb-4">
+            <div className="p-3 bg-surface-container rounded-xl">
+              <span className="font-bold text-primary block">Tool Limit</span>
+              <span className="text-on-surface-variant text-[11px]">Max 4 tool calls / run</span>
+            </div>
+            <div className="p-3 bg-surface-container rounded-xl">
+              <span className="font-bold text-primary block">Permission Model</span>
+              <span className="text-on-surface-variant text-[11px]">Zero-autonomous writes</span>
+            </div>
+            <div className="p-3 bg-surface-container rounded-xl">
+              <span className="font-bold text-primary block">AI Router</span>
+              <span className="text-on-surface-variant text-[11px]">Failover enabled</span>
+            </div>
           </div>
         </div>
 

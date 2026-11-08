@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FileText, Calendar, TrendingUp, AlertCircle, RefreshCw, Trash2 } from 'lucide-react';
+import { FileText, Calendar, TrendingUp, AlertCircle, RefreshCw, Trash2, Compass, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 interface AnalysisRecord {
   id: string;
@@ -19,6 +19,7 @@ interface Props {
 
 export default function DashboardSection({ navigate, restoreAnalysis }: Props) {
   const [analyses, setAnalyses] = useState<AnalysisRecord[]>([]);
+  const [activePlan, setActivePlan] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,14 +27,23 @@ export default function DashboardSection({ navigate, restoreAnalysis }: Props) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/analyses');
-      const data = await res.json();
-      
-      if (!res.ok) {
+      const [resAnalyses, resPlans] = await Promise.all([
+        fetch('/api/analyses'),
+        fetch('/api/agent/plans').catch(() => null),
+      ]);
+
+      const data = await resAnalyses.json();
+      if (!resAnalyses.ok) {
         throw new Error(data.error || 'Failed to load historical data');
       }
-
       setAnalyses(data);
+
+      if (resPlans && resPlans.ok) {
+        const plansData = await resPlans.json();
+        if (plansData.plans && plansData.plans.length > 0) {
+          setActivePlan(plansData.plans[0]);
+        }
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -125,6 +135,34 @@ export default function DashboardSection({ navigate, restoreAnalysis }: Props) {
         <h2 className="text-3xl md:text-4xl font-headline font-extrabold text-primary mb-3 tracking-tight">Audit Dashboard</h2>
         <p className="text-on-surface-variant text-[15px] max-w-2xl">Review and export your historically saved resume analyses.</p>
       </div>
+
+      {/* Active Career Agent Roadmap Banner */}
+      {activePlan && (
+        <div className="mb-8 p-6 md:p-7 rounded-3xl bg-gradient-to-r from-surface-container via-surface-container-high to-surface-container border border-secondary/30 shadow-lg slide-up">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-0.5 bg-secondary/15 text-secondary text-[11px] font-bold rounded-full uppercase flex items-center gap-1">
+                  <Compass size={12} /> Active Career Plan
+                </span>
+                <span className="text-xs text-on-surface-variant font-medium">
+                  Target: {activePlan.targetRole}
+                </span>
+              </div>
+              <h3 className="text-xl font-headline font-bold text-primary">{activePlan.title}</h3>
+              {activePlan.plan?.summary && (
+                <p className="text-xs text-on-surface-variant max-w-2xl">{activePlan.plan.summary}</p>
+              )}
+            </div>
+            <button
+              onClick={() => navigate('agent')}
+              className="bg-primary text-on-primary-fixed px-5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 hover:shadow-lg transition-all shrink-0 cursor-pointer"
+            >
+              Open in Career Agent <ArrowRight size={14} />
+            </button>
+          </div>
+        </div>
+      )}
 
       {analyses.length === 0 ? (
         <div className="bg-surface-container-lowest p-16 rounded-3xl border border-outline-variant/15 shadow-sm text-center slide-up" style={{ animationDelay: '100ms' }}>

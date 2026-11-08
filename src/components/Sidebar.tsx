@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Home, Sparkles, Plus, Mic, BarChart2, Lightbulb, GraduationCap, Settings, HelpCircle, LogIn, LogOut, X, Info } from 'lucide-react';
+import { Home, Sparkles, Plus, Mic, BarChart2, Lightbulb, GraduationCap, Settings, HelpCircle, LogIn, LogOut, X, Info, Compass } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
@@ -101,6 +101,15 @@ export default function Sidebar({ currentMode, navigate, isOpen, onClose }: Side
             <div onClick={() => handleNav('job-board')} className={navItemClass('job-board')}>
               <GraduationCap size={20} className={currentMode === 'job-board' ? 'text-secondary' : 'text-on-surface-variant/70 group-hover:text-secondary transition-colors'} />
               <span className="text-[14px]">Job Board</span>
+            </div>
+            <div onClick={() => handleNav('agent')} className={navItemClass('agent')}>
+              <Compass size={20} className={currentMode === 'agent' ? 'text-secondary' : 'text-on-surface-variant/70 group-hover:text-secondary transition-colors'} />
+              <div className="flex items-center justify-between w-full">
+                <span className="text-[14px]">Career Agent</span>
+                <span className="px-1.5 py-0.5 text-[9px] font-bold rounded-md bg-secondary/15 text-secondary border border-secondary/30 uppercase tracking-wider">
+                  AI
+                </span>
+              </div>
             </div>
           </nav>
         </div>

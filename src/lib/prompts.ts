@@ -68,3 +68,62 @@ Generate: 1) A Mermaid.js architecture diagram (valid syntax, use "graph TD"). 2
 Return ONLY valid JSON (no markdown, no backticks):
 {"architecture":"graph TD\\n  A[Frontend] --> B[Backend]\\n...","tasks":["task 1","task 2","..."]}`;
 }
+
+export interface CareerPlanPromptInput {
+  targetRole?: string;
+  specialization?: string;
+  techStack?: string;
+  experience?: string;
+  recentFeedback?: string;
+  skillGaps?: string[];
+  durationWeeks?: number;
+}
+
+/**
+ * Career Architect Plan prompt — creates a bounded, milestone-based career roadmap.
+ */
+export function buildCareerPlanPrompt(data: CareerPlanPromptInput): string {
+  const duration = data.durationWeeks ? `${data.durationWeeks} Weeks` : '4 Weeks';
+  const role = data.targetRole || 'Software Development Engineer';
+
+  let context = `Target Role: ${role}\nDuration: ${duration}`;
+  if (data.specialization) context += `\nSpecialization: ${data.specialization}`;
+  if (data.techStack) context += `\nCurrent Stack: ${data.techStack}`;
+  if (data.experience) context += `\nExperience: ${data.experience}`;
+  if (data.skillGaps && data.skillGaps.length > 0) context += `\nIdentified Gaps: ${data.skillGaps.join(', ')}`;
+  if (data.recentFeedback) context += `\nRecent Feedback / Performance: ${data.recentFeedback}`;
+
+  return `You are an elite Principal Career Architect. Synthesize this candidate's profile into an actionable, prioritized ${duration} preparation plan.
+${context}
+
+Return ONLY valid JSON (no markdown, no backticks):
+{
+  "title": "Actionable title (e.g. Backend SDE Acceleration Roadmap)",
+  "targetRole": "${role}",
+  "timeline": "${duration}",
+  "summary": "2-sentence executive roadmap summary",
+  "skillGaps": ["Top 2-3 specific technical gaps to close"],
+  "milestones": [
+    {
+      "title": "Phase 1: Foundations & Core System",
+      "duration": "Week 1",
+      "description": "Clear outcome",
+      "tasks": ["Actionable task 1", "Actionable task 2", "Actionable task 3"]
+    },
+    {
+      "title": "Phase 2: Advanced Design & Verification",
+      "duration": "Week 2-3",
+      "description": "Clear outcome",
+      "tasks": ["Actionable task 1", "Actionable task 2", "Actionable task 3"]
+    },
+    {
+      "title": "Phase 3: Interview Mastery & Portfolio Finalization",
+      "duration": "Week 4",
+      "description": "Clear outcome",
+      "tasks": ["Actionable task 1", "Actionable task 2"]
+    }
+  ],
+  "rationale": "Direct evidence explaining why this plan bridges the candidate's biggest gaps",
+  "recommendedNextModule": "interview"
+}`;
+}

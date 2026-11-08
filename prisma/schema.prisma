@@ -22,6 +22,8 @@ model User {
   projectBlueprints ProjectBlueprint[]
   interviewSessions InterviewSession[]
   savedProjects     SavedProject[]
+  agentRuns         AgentRun[]
+  careerPlans       CareerPlan[]
   resetToken        String?
   resetTokenExpires DateTime?
 }
@@ -147,4 +149,59 @@ model SavedProject {
   createdAt      DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AgentRun {
+  id          String        @id @default(cuid())
+  userId      String
+  status      String        @default("RUNNING") // RUNNING, WAITING_APPROVAL, COMPLETED, FAILED, CANCELLED
+  userRequest String
+  finalAnswer String?
+  metadata    String?       // JSON string of run metadata (latency, turns, stopReason)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  actions     AgentAction[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model AgentAction {
+  id             String   @id @default(cuid())
+  runId          String
+  toolName       String
+  input          String   // JSON string
+  output         String?  // JSON string
+  status         String   @default("PENDING") // PENDING, SUCCESS, FAILED, WAITING_APPROVAL, APPROVED, REJECTED
+  approvalStatus String   @default("NONE")    // NONE, PENDING, APPROVED, REJECTED
+  thought        String?
+  latencyMs      Int?
+  error          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  run            AgentRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([runId])
+  @@index([toolName])
+}
+
+model CareerPlan {
+  id         String   @id @default(cuid())
+  userId     String
+  title      String
+  targetRole String
+  planJson   String   // JSON string containing summary, milestones, tasks, rationale/evidence
+  status     String   @default("ACTIVE") // ACTIVE, ARCHIVED, COMPLETED
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
 }
