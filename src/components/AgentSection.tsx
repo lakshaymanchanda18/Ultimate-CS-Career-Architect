@@ -450,7 +450,7 @@ export default function AgentSection({ navigate }: Props) {
                         <button
                           onClick={handleApprovePlan}
                           disabled={approving}
-                          className="bg-secondary text-primary font-bold px-6 py-3 rounded-xl text-xs flex items-center gap-2 hover:shadow-lg hover:shadow-secondary/20 transition-all cursor-pointer hover:scale-105"
+                          className="bg-secondary-fixed text-on-secondary-fixed font-bold px-6 py-3 rounded-xl text-xs flex items-center gap-2 hover:shadow-lg hover:shadow-secondary/20 transition-all cursor-pointer hover:scale-105"
                         >
                           {approving ? (
                             <>

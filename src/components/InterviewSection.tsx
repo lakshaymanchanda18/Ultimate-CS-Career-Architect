@@ -593,7 +593,7 @@ export default function InterviewSection({ navigate, userData, updateUserData }:
               </div>
               <button 
                 onClick={() => handleStartSession('profile-builder')}
-                className="w-full bg-secondary-fixed text-primary font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer shadow-md"
+                className="w-full bg-secondary-fixed text-on-secondary-fixed font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer shadow-md"
               >
                 Launch Builder <Sparkle size={16} />
               </button>
@@ -676,7 +676,7 @@ export default function InterviewSection({ navigate, userData, updateUserData }:
               {historyList.length > 0 && (
                 <button
                   onClick={handleClearAllHistory}
-                  className="text-xs text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100/80 px-3.5 py-2 rounded-xl font-bold flex items-center gap-1.5 transition-colors cursor-pointer border border-red-200/40"
+                  className="text-xs text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 bg-red-50 dark:bg-red-950/20 hover:bg-red-100/80 dark:hover:bg-red-950/40 px-3.5 py-2 rounded-xl font-bold flex items-center gap-1.5 transition-colors cursor-pointer border border-red-200/40 dark:border-red-900/40"
                 >
                   <Trash2 size={13} /> Clear All
                 </button>
@@ -822,7 +822,7 @@ export default function InterviewSection({ navigate, userData, updateUserData }:
               </button>
               <button 
                 onClick={() => setSessionState('setup')}
-                className="w-full bg-red-50 text-red-600 text-xs font-bold py-2.5 rounded-lg hover:bg-red-100 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 text-xs font-bold py-2.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-950/40 transition-colors flex items-center justify-center gap-1.5 cursor-pointer border border-red-200/40 dark:border-red-900/40"
               >
                 <ArrowLeft size={14} /> Exit Session
               </button>

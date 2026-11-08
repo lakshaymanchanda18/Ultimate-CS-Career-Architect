@@ -17,6 +17,7 @@
   --color-surface-container-high: #e4e4e7;
   --color-surface-container-highest: #d4d4d8;
   --color-on-surface-variant: #52525b;
+  --color-on-primary: #ffffff;
   --color-on-primary-fixed: #ffffff;
   --color-outline-variant: #e4e4e7;
 
@@ -29,7 +30,7 @@
 .dark, :root.dark, html.dark, :root[class~="dark"] {
   --color-primary: #f4f4f5;
   --color-primary-container: #18181b;
-  --color-primary-fixed: #27272a;
+  --color-primary-fixed: #e4e4e7;
   --color-secondary: #10b981;
   --color-secondary-fixed: #34d399;
   --color-on-secondary-fixed: #064e3b;
@@ -40,8 +41,25 @@
   --color-surface-container-high: #27272a;
   --color-surface-container-highest: #3f3f46;
   --color-on-surface-variant: #a1a1aa;
-  --color-on-primary-fixed: #ffffff;
+  --color-on-primary: #09090b;
+  --color-on-primary-fixed: #09090b;
   --color-outline-variant: #27272a;
+}
+
+/* ─── Guaranteed Button Contrast Safeguard ──────────────────────── */
+button.bg-primary,
+a.bg-primary,
+.btn-primary,
+[role="button"].bg-primary {
+  color: var(--color-on-primary-fixed) !important;
+}
+
+button.bg-primary svg,
+a.bg-primary svg,
+.btn-primary svg,
+[role="button"].bg-primary svg {
+  color: inherit !important;
+  stroke: currentColor;
 }
 
 /* ─── Base Typography & Canvas ─────────────────────────────────── */
