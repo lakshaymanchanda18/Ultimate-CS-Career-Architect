@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, Suspense, useEffect } from "react";
+import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Sparkles, Mail, Lock, ArrowRight, User, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import Link from "next/link";
+import { Mail, Lock, ArrowRight, User, ArrowLeft, Eye, EyeOff, Code2, CheckCircle2, Shield, Loader2 } from "lucide-react";
 
 function LoginForm() {
   const router = useRouter();
@@ -23,7 +24,6 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [resetSent, setResetSent] = useState(false);
   const [resetLink, setResetLink] = useState("");
-  const [authSuccessState, setAuthSuccessState] = useState<"signup_success" | "login_success" | null>(null);
 
   const hasMinLength = password.length >= 8;
   const hasUppercase = /[A-Z]/.test(password);
@@ -87,15 +87,12 @@ function LoginForm() {
         if (result?.error) {
           setError(result.error === "CredentialsSignin" ? "Invalid email or password." : result.error);
         } else {
-          setAuthSuccessState(isSignUp ? "signup_success" : "login_success");
           const section = searchParams.get("section");
-          setTimeout(() => {
-            router.push(section ? `/?section=${section}` : "/");
-            router.refresh();
-          }, 3200);
+          router.push(section ? `/?section=${section}` : "/");
+          router.refresh();
         }
       }
-    } catch (err) {
+    } catch {
       setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
@@ -103,47 +100,59 @@ function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen bg-surface flex font-body">
-      {/* Left Panel - Branding */}
-      <div className="hidden lg:flex w-1/2 bg-primary-container relative overflow-hidden flex-col justify-between p-12">
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-20 left-20 w-96 h-96 rounded-full bg-secondary-fixed blur-3xl" />
-          <div className="absolute bottom-20 right-20 w-72 h-72 rounded-full bg-secondary blur-3xl" />
-        </div>
-
-        <div className="relative z-10">
+    <div className="min-h-screen bg-surface flex font-body text-primary">
+      {/* Left Panel - Professional Workspace Overview */}
+      <div className="hidden lg:flex w-1/2 bg-primary-container relative flex-col justify-between p-12 border-r border-outline-variant">
+        <div>
           <div className="flex items-center gap-3 mb-16">
-            <div className="w-10 h-10 rounded-lg bg-white/10 backdrop-blur text-secondary-fixed flex items-center justify-center">
-              <Sparkles size={22} />
+            <div className="w-9 h-9 rounded-lg bg-surface-container text-secondary flex items-center justify-center border border-outline-variant">
+              <Code2 size={20} />
             </div>
             <div>
-              <h1 className="font-headline font-bold text-lg text-white leading-tight">CareerEngine</h1>
-              <p className="text-[10px] text-white/50 tracking-wider uppercase">CS Career Architect</p>
+              <h1 className="font-headline font-bold text-base text-white leading-tight">CareerEngine</h1>
+              <p className="text-[10px] text-white/60 tracking-wider uppercase font-semibold">CS Career Architect</p>
             </div>
           </div>
 
-          <h2 className="text-4xl font-headline font-extrabold text-white leading-tight mb-6">
-            Architect Your<br />
-            Path to <span className="text-secondary-fixed">Tier-1</span><br />
-            Tech Companies
+          <h2 className="text-3xl font-headline font-extrabold text-white leading-tight mb-4 tracking-tight">
+            Software Engineering Career Preparation
           </h2>
-          <p className="text-white/60 max-w-sm leading-relaxed">
-            AI-powered resume auditing, ATS optimization, and personalized project recommendations — all in one platform.
+          <p className="text-white/70 max-w-sm leading-relaxed text-sm mb-10">
+            Resume ATS auditing, technical interview simulator, system architecture designer, and job pipeline tracking in one unified workspace.
           </p>
+
+          <div className="space-y-4 max-w-sm text-xs text-white/80">
+            <div className="flex items-start gap-3 p-3.5 bg-white/5 rounded-xl border border-white/10">
+              <CheckCircle2 size={16} className="text-secondary shrink-0 mt-0.5" />
+              <div>
+                <strong className="text-white block font-semibold mb-0.5">3-Layer ATS Resume Audit</strong>
+                <span>Scoring structure, specialization alignment, and quantifiable bullet impact.</span>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-3.5 bg-white/5 rounded-xl border border-white/10">
+              <CheckCircle2 size={16} className="text-secondary shrink-0 mt-0.5" />
+              <div>
+                <strong className="text-white block font-semibold mb-0.5">Interactive Technical Rounds</strong>
+                <span>Conversational technical practice with depth evaluations across your stack.</span>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-3.5 bg-white/5 rounded-xl border border-white/10">
+              <Shield size={16} className="text-secondary shrink-0 mt-0.5" />
+              <div>
+                <strong className="text-white block font-semibold mb-0.5">Supervised Career Planning</strong>
+                <span>Bounded agentic roadmaps that always require explicit confirmation before persisting.</span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="relative z-10 grid grid-cols-3 gap-4">
-          <div className="bg-white/5 backdrop-blur border border-white/10 rounded-xl p-4 text-center">
-            <p className="text-2xl font-headline font-black text-secondary-fixed">95+</p>
-            <p className="text-[10px] text-white/50 uppercase tracking-wider mt-1">Avg ATS Score</p>
-          </div>
-          <div className="bg-white/5 backdrop-blur border border-white/10 rounded-xl p-4 text-center">
-            <p className="text-2xl font-headline font-black text-secondary-fixed">3x</p>
-            <p className="text-[10px] text-white/50 uppercase tracking-wider mt-1">Interview Rate</p>
-          </div>
-          <div className="bg-white/5 backdrop-blur border border-white/10 rounded-xl p-4 text-center">
-            <p className="text-2xl font-headline font-black text-secondary-fixed">50+</p>
-            <p className="text-[10px] text-white/50 uppercase tracking-wider mt-1">LPA Projects</p>
+        <div className="pt-8 border-t border-white/10 text-xs text-white/50 flex items-center justify-between">
+          <span>&copy; {new Date().getFullYear()} CareerEngine</span>
+          <div className="flex items-center gap-4">
+            <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
           </div>
         </div>
       </div>
@@ -152,86 +161,105 @@ function LoginForm() {
       <div className="flex-1 flex items-center justify-center p-8 bg-surface transition-colors">
         <div className="w-full max-w-md">
           {/* Mobile Header (Back Link + Logo) */}
-          <div className="flex items-center justify-between mb-10 lg:hidden">
+          <div className="flex items-center justify-between mb-8 lg:hidden">
             <button 
               onClick={() => router.push("/")}
-              className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-on-surface-variant hover:text-primary transition-colors cursor-pointer group"
+              className="flex items-center gap-1.5 text-xs font-semibold text-on-surface-variant hover:text-primary transition-colors cursor-pointer"
             >
-              <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
+              <ArrowLeft size={15} />
               Back
             </button>
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-primary-container text-secondary-fixed flex items-center justify-center">
-                <Sparkles size={18} />
+              <div className="w-7 h-7 rounded-md bg-primary-container text-secondary flex items-center justify-center border border-outline-variant">
+                <Code2 size={16} />
               </div>
-              <span className="font-headline font-bold text-base text-primary">CareerEngine</span>
+              <span className="font-headline font-bold text-sm text-primary">CareerEngine</span>
             </div>
           </div>
 
           <div className="mb-8">
-            <h2 className="text-3xl font-headline font-extrabold mb-2 text-primary">
+            <h2 className="text-2xl font-headline font-extrabold mb-1.5 text-primary tracking-tight">
               {view === "signup" && "Create your account"}
               {view === "login" && "Welcome back"}
-              {view === "forgot" && "Reset Password"}
+              {view === "forgot" && "Reset your password"}
             </h2>
             <p className="text-on-surface-variant text-sm font-medium">
-              {view === "signup" && "Start building your career profile today."}
-              {view === "login" && "Sign in to continue your career journey."}
-              {view === "forgot" && "Enter your email to receive a password reset link."}
+              {view === "signup" && "Sign up to begin your career preparation workspace."}
+              {view === "login" && "Sign in to access your saved resumes and plans."}
+              {view === "forgot" && "Enter your account email to receive a reset link."}
             </p>
           </div>
 
+          {/* Toggle between Login and Signup */}
+          {view !== "forgot" && (
+            <div className="flex bg-surface-container p-1 rounded-xl mb-6 border border-outline-variant">
+              <button
+                type="button"
+                onClick={() => { setView("login"); setError(""); }}
+                className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                  view === "login"
+                    ? "bg-surface-container-lowest text-primary shadow-sm"
+                    : "text-on-surface-variant hover:text-primary"
+                }`}
+              >
+                Sign In
+              </button>
+              <button
+                type="button"
+                onClick={() => { setView("signup"); setError(""); }}
+                className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                  view === "signup"
+                    ? "bg-surface-container-lowest text-primary shadow-sm"
+                    : "text-on-surface-variant hover:text-primary"
+                }`}
+              >
+                Create Account
+              </button>
+            </div>
+          )}
+
           {error && (
-            <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 text-red-600 dark:text-red-400 text-sm px-4 py-3 rounded-xl mb-6 font-medium">
+            <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-xs font-medium leading-relaxed">
               {error}
             </div>
           )}
 
-          {view === "forgot" && resetSent ? (
-            <div className="space-y-6">
-              <div className="bg-green-50 dark:bg-green-950/15 border border-green-200 dark:border-green-900/30 text-green-700 dark:text-green-400 text-sm px-4 py-3.5 rounded-xl font-medium leading-relaxed">
-                If an account exists for <span className="font-bold">{email}</span>, a password reset link has been generated. For testing in your local development environment:
-                {resetLink && (
-                  <div className="mt-3 p-3 bg-surface-container border border-green-200 dark:border-green-900/20 rounded-lg">
-                    <p className="text-[10px] uppercase tracking-wider font-bold text-green-800 dark:text-green-400 mb-1">Local Testing Link:</p>
-                    <a
-                      href={resetLink}
-                      className="text-xs font-mono text-secondary hover:underline break-all block"
-                    >
-                      {resetLink}
-                    </a>
-                  </div>
-                )}
-                <p className="mt-2 text-xs text-green-600/80 dark:text-green-400/80">
-                  The link has also been printed in your server terminal.
-                </p>
+          {resetSent ? (
+            <div className="p-6 rounded-2xl bg-surface-container-lowest border border-outline-variant text-center space-y-4">
+              <div className="w-10 h-10 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center mx-auto">
+                <CheckCircle2 size={20} />
               </div>
-
+              <h3 className="font-headline font-bold text-base text-primary">Password Reset Initiated</h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                If an account exists with <strong className="text-primary">{email}</strong>, a reset link has been generated.
+              </p>
+              {resetLink && (
+                <div className="p-3 bg-surface-container-low rounded-lg text-left font-mono text-[11px] break-all border border-outline-variant">
+                  <span className="text-[10px] text-on-surface-variant uppercase font-bold block mb-1">Direct Reset URL:</span>
+                  <Link href={resetLink} className="text-secondary hover:underline">{resetLink}</Link>
+                </div>
+              )}
               <button
-                onClick={() => {
-                  setView("login");
-                  setResetSent(false);
-                  setResetLink("");
-                  setEmail("");
-                }}
-                className="w-full bg-primary text-on-primary-fixed rounded-xl py-3.5 font-semibold text-center hover:shadow-lg transition-all"
+                type="button"
+                onClick={() => { setView("login"); setResetSent(false); setResetLink(""); }}
+                className="w-full py-2.5 text-xs font-semibold bg-surface-container text-primary rounded-lg border border-outline-variant hover:bg-surface-container-high transition-colors cursor-pointer"
               >
                 Back to Sign In
               </button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-4">
               {view === "signup" && (
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Full Name</label>
+                  <label className="block text-xs font-semibold text-primary mb-1.5">Full Name</label>
                   <div className="relative">
-                    <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50" />
+                    <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/60" />
                     <input
                       type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      placeholder="Your full name"
-                      className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl py-3.5 pl-12 pr-4 text-sm focus:border-secondary focus:ring-1 focus:ring-secondary/20 outline-none transition-all text-primary"
+                      placeholder="Alex Chen"
+                      className="w-full bg-surface-container-lowest border border-outline-variant rounded-lg py-2.5 pl-10 pr-3.5 text-sm focus:border-secondary focus:ring-1 focus:ring-secondary/20 outline-none transition-all text-primary"
                       required
                     />
                   </div>
@@ -239,15 +267,15 @@ function LoginForm() {
               )}
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Email</label>
+                <label className="block text-xs font-semibold text-primary mb-1.5">Email Address</label>
                 <div className="relative">
-                  <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50" />
+                  <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/60" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
-                    className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl py-3.5 pl-12 pr-4 text-sm focus:border-secondary focus:ring-1 focus:ring-secondary/20 outline-none transition-all text-primary"
+                    placeholder="alex@university.edu"
+                    className="w-full bg-surface-container-lowest border border-outline-variant rounded-lg py-2.5 pl-10 pr-3.5 text-sm focus:border-secondary focus:ring-1 focus:ring-secondary/20 outline-none transition-all text-primary"
                     required
                   />
                 </div>
@@ -255,49 +283,44 @@ function LoginForm() {
 
               {view !== "forgot" && (
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Password</label>
+                  <label className="block text-xs font-semibold text-primary mb-1.5">Password</label>
                   <div className="relative">
-                    <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50" />
+                    <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/60" />
                     <input
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl py-3.5 pl-12 pr-12 text-sm focus:border-secondary focus:ring-1 focus:ring-secondary/20 outline-none transition-all text-primary"
+                      className="w-full bg-surface-container-lowest border border-outline-variant rounded-lg py-2.5 pl-10 pr-10 text-sm focus:border-secondary focus:ring-1 focus:ring-secondary/20 outline-none transition-all text-primary"
                       required
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 hover:text-primary transition-colors cursor-pointer select-none"
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/60 hover:text-primary transition-colors cursor-pointer select-none"
                     >
-                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
                   {(view === "signup" || view === "login") && password.length > 0 && (
-                    <div className="mt-3 space-y-1.5 p-3.5 bg-surface-container-low/50 rounded-xl border border-outline-variant/10 animate-in fade-in duration-300">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant mb-1">Password Requirements:</p>
-                      <div className="grid grid-cols-2 gap-2 text-[10px] font-semibold">
-                        <div className={`flex items-center gap-1.5 transition-colors ${hasMinLength ? "text-green-600 dark:text-green-400" : "text-on-surface-variant/65"}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${hasMinLength ? "bg-green-600 dark:bg-green-400" : "bg-on-surface-variant/40"}`} />
-                          <span>8+ Characters</span>
-                        </div>
-                        <div className={`flex items-center gap-1.5 transition-colors ${hasUppercase ? "text-green-600 dark:text-green-400" : "text-on-surface-variant/65"}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${hasUppercase ? "bg-green-600 dark:bg-green-400" : "bg-on-surface-variant/40"}`} />
-                          <span>1 Uppercase (A-Z)</span>
-                        </div>
-                        <div className={`flex items-center gap-1.5 transition-colors ${hasLowercase ? "text-green-600 dark:text-green-400" : "text-on-surface-variant/65"}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${hasLowercase ? "bg-green-600 dark:bg-green-400" : "bg-on-surface-variant/40"}`} />
-                          <span>1 Lowercase (a-z)</span>
-                        </div>
-                        <div className={`flex items-center gap-1.5 transition-colors ${hasNumber ? "text-green-600 dark:text-green-400" : "text-on-surface-variant/65"}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${hasNumber ? "bg-green-600 dark:bg-green-400" : "bg-on-surface-variant/40"}`} />
-                          <span>1 Number (0-9)</span>
-                        </div>
-                        <div className={`flex items-center gap-1.5 transition-colors ${hasSpecial ? "text-green-600 dark:text-green-400" : "text-on-surface-variant/65"}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${hasSpecial ? "bg-green-600 dark:bg-green-400" : "bg-on-surface-variant/40"}`} />
-                          <span>1 Special (@$!%*?&)</span>
-                        </div>
+                    <div className="mt-2.5 p-3 bg-surface-container-low rounded-lg border border-outline-variant text-[11px] space-y-1">
+                      <p className="font-semibold text-on-surface-variant mb-1">Password Requirements:</p>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        <span className={hasMinLength ? "text-secondary font-medium" : "text-on-surface-variant/70"}>
+                          • 8+ characters
+                        </span>
+                        <span className={hasUppercase ? "text-secondary font-medium" : "text-on-surface-variant/70"}>
+                          • Uppercase letter
+                        </span>
+                        <span className={hasLowercase ? "text-secondary font-medium" : "text-on-surface-variant/70"}>
+                          • Lowercase letter
+                        </span>
+                        <span className={hasNumber ? "text-secondary font-medium" : "text-on-surface-variant/70"}>
+                          • Number (0-9)
+                        </span>
+                        <span className={hasSpecial ? "text-secondary font-medium" : "text-on-surface-variant/70"}>
+                          • Special symbol
+                        </span>
                       </div>
                     </div>
                   )}
@@ -311,79 +334,78 @@ function LoginForm() {
                       type="checkbox"
                       checked={rememberMe}
                       onChange={(e) => setRememberMe(e.target.checked)}
-                      className="w-4 h-4 rounded border-outline-variant/30 text-secondary focus:ring-secondary/20"
+                      className="w-3.5 h-3.5 rounded border-outline-variant text-secondary focus:ring-secondary/20"
                     />
                     <span className="text-xs text-on-surface-variant font-medium">Remember me</span>
                   </label>
                   <button
                     type="button"
                     onClick={() => { setView("forgot"); setError(""); }}
-                    className="text-xs text-secondary font-semibold hover:underline"
+                    className="text-xs font-semibold text-secondary hover:underline cursor-pointer"
                   >
                     Forgot password?
                   </button>
                 </div>
               )}
 
+              {view === "signup" && (
+                <p className="text-[11px] text-on-surface-variant leading-relaxed pt-1">
+                  By creating an account, you agree to our{" "}
+                  <Link href="/terms" className="text-primary underline hover:text-secondary font-medium">
+                    Terms of Service
+                  </Link>{" "}
+                  and{" "}
+                  <Link href="/privacy" className="text-primary underline hover:text-secondary font-medium">
+                    Privacy Policy
+                  </Link>.
+                </p>
+              )}
+
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-primary text-on-primary-fixed rounded-xl py-3.5 font-semibold flex items-center justify-center gap-2 hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className="w-full bg-primary text-on-primary-fixed py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 hover:opacity-95 transition-opacity disabled:opacity-50 cursor-pointer shadow-sm mt-2"
               >
                 {loading ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    <span>Processing...</span>
+                  </>
                 ) : (
                   <>
-                    {view === "signup" && "Create Account"}
-                    {view === "login" && "Sign In"}
-                    {view === "forgot" && "Send Reset Link"}
-                    <ArrowRight size={16} />
+                    <span>
+                      {view === "signup" && "Create Account"}
+                      {view === "login" && "Sign In"}
+                      {view === "forgot" && "Send Reset Link"}
+                    </span>
+                    <ArrowRight size={15} />
                   </>
                 )}
               </button>
+
+              {view === "forgot" && (
+                <button
+                  type="button"
+                  onClick={() => { setView("login"); setError(""); }}
+                  className="w-full py-2 text-xs font-semibold text-on-surface-variant hover:text-primary transition-colors cursor-pointer text-center block"
+                >
+                  Back to Sign In
+                </button>
+              )}
             </form>
           )}
 
-          <div className="mt-8 text-center">
-            <p className="text-sm text-on-surface-variant font-semibold">
-              {view === "login" && (
-                <>
-                  Don't have an account?{" "}
-                  <button
-                    onClick={() => { setView("signup"); setError(""); }}
-                    className="text-secondary font-bold hover:underline"
-                  >
-                    Create one
-                  </button>
-                </>
-              )}
-              {view === "signup" && (
-                <>
-                  Already have an account?{" "}
-                  <button
-                    onClick={() => { setView("login"); setError(""); }}
-                    className="text-secondary font-bold hover:underline"
-                  >
-                    Sign In
-                  </button>
-                </>
-              )}
-              {view === "forgot" && !resetSent && (
-                <>
-                  Remembered your password?{" "}
-                  <button
-                    onClick={() => { setView("login"); setError(""); }}
-                    className="text-secondary font-bold hover:underline"
-                  >
-                    Sign In
-                  </button>
-                </>
-              )}
-            </p>
+          <div className="mt-8 pt-6 border-t border-outline-variant flex items-center justify-between text-xs text-on-surface-variant">
+            <Link href="/" className="hover:text-primary transition-colors">
+              &larr; Back to Home
+            </Link>
+            <div className="flex items-center gap-4">
+              <Link href="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
+              <Link href="/terms" className="hover:text-primary transition-colors">Terms</Link>
+            </div>
           </div>
         </div>
       </div>
-      {authSuccessState && <SuccessOverlay type={authSuccessState} />}
     </div>
   );
 }
@@ -391,102 +413,11 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <div className="flex h-screen w-full items-center justify-center bg-surface">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm font-semibold text-on-surface-variant animate-pulse font-body">Loading...</p>
-        </div>
+      <div className="min-h-screen bg-surface flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
       </div>
     }>
       <LoginForm />
     </Suspense>
-  );
-}
-
-function SuccessOverlay({ type }: { type: "signup_success" | "login_success" }) {
-  const [currentStep, setCurrentStep] = useState(0);
-
-  const signupSteps = [
-    "git init --bare --shared",
-    "npm install @career-engine/recruiter",
-    "Initializing secure user credentials...",
-    "Creating SQLite developer workspace...",
-    "Establishing neural link with Gemini AI...",
-    "Compilation complete! Welcome aboard."
-  ];
-
-  const loginSteps = [
-    "git checkout main && git pull origin main",
-    "Restoring user profile variables...",
-    "Synchronizing historical ATS audit reports...",
-    "Connecting active project Kanban boards...",
-    "Loading career developer console...",
-    "Session established! Welcome back."
-  ];
-
-  const steps = type === "signup_success" ? signupSteps : loginSteps;
-
-  useEffect(() => {
-    const intervals = [400, 900, 1400, 1900, 2400, 2900];
-    const timers = intervals.map((ms, index) => 
-      setTimeout(() => setCurrentStep(index), ms)
-    );
-    return () => timers.forEach(clearTimeout);
-  }, [type]);
-
-  return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-surface/90 backdrop-blur-2xl transition-all duration-500 font-body animate-in fade-in duration-300">
-      <div className="absolute inset-0 opacity-10 pointer-events-none overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-secondary blur-3xl animate-pulse" style={{ animationDuration: '6s' }} />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-primary blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
-      </div>
-
-      <div className="relative z-10 flex flex-col items-center text-center max-w-lg px-6">
-        {/* Animated Icon Ring */}
-        <div className="relative mb-10 w-24 h-24 flex items-center justify-center">
-          <div className="absolute inset-0 rounded-full border-4 border-surface-container-high" />
-          <div className="absolute inset-0 rounded-full border-4 border-t-secondary border-r-transparent border-b-transparent border-l-transparent animate-spin" style={{ animationDuration: '1.2s' }} />
-          <div className="absolute inset-2 rounded-full border border-outline-variant/30 border-dashed animate-spin" style={{ animationDuration: '4s', animationDirection: 'reverse' }} />
-          <Sparkles className="text-secondary animate-pulse" size={32} />
-        </div>
-
-        {/* Welcome Header */}
-        <h2 className="text-3xl font-headline font-extrabold text-primary mb-3">
-          {type === "signup_success" ? "Architect Account Created!" : "Access Granted!"}
-        </h2>
-        <p className="text-on-surface-variant font-semibold mb-8 text-sm md:text-base leading-relaxed">
-          {type === "signup_success" 
-            ? "Welcome to CareerEngine. Ready to scale your SDE profile?" 
-            : "Welcome back! Let's resume your career journey."}
-        </p>
-
-        {/* Simulated developer build logs */}
-        <div className="w-full bg-surface-container-lowest border border-outline-variant/20 rounded-2xl p-5 text-left font-mono text-[11px] text-on-surface-variant/80 shadow-inner h-40 overflow-hidden flex flex-col justify-end gap-1.5 relative">
-          <div className="absolute top-3 left-4 text-[9px] font-bold uppercase tracking-wider text-on-surface-variant/40 flex items-center gap-1.5 select-none">
-            <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
-            <span className="w-1.5 h-1.5 rounded-full bg-yellow-400" />
-            <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
-            <span className="ml-1">SYSTEM INIT</span>
-          </div>
-
-          <div className="space-y-1 mt-4">
-            {steps.slice(0, currentStep + 1).map((step, idx) => {
-              const isLast = idx === currentStep;
-              const isCommand = step.startsWith("git") || step.startsWith("npm");
-              return (
-                <div key={idx} className={`transition-opacity duration-300 ${isLast ? "text-secondary font-bold" : "opacity-60"}`}>
-                  <span className="text-on-surface-variant/30 mr-2 select-none">&gt;</span>
-                  {isCommand ? (
-                    <span className="text-primary font-semibold">{step}</span>
-                  ) : (
-                    <span>{step}</span>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    </div>
   );
 }

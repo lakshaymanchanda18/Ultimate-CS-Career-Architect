@@ -43,13 +43,13 @@ export default function TopNav({ navigate, onMenuClick }: Props) {
           <>
             <div 
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="flex items-center gap-3 bg-surface-container-low/50 px-3 py-1.5 rounded-full border border-outline-variant/10 hover:bg-surface-container-low transition-colors cursor-pointer group select-none"
+              className="flex items-center gap-3 bg-surface-container-low px-3 py-1.5 rounded-xl border border-outline-variant hover:bg-surface-container transition-colors cursor-pointer group select-none"
             >
               <div className="text-right hidden sm:block pl-2">
                 <p className="text-[13px] font-bold leading-tight text-primary group-hover:text-secondary transition-colors">{session.user.name}</p>
                 <p className="text-[10px] font-semibold text-on-surface-variant leading-tight">{session.user.email}</p>
               </div>
-              <div className="w-9 h-9 rounded-full bg-primary-container text-white flex items-center justify-center font-bold text-[13px] shadow-sm">
+              <div className="w-8 h-8 rounded-lg bg-primary-container text-white flex items-center justify-center font-bold text-[12px] border border-outline-variant">
                 {userInitials}
               </div>
               <ChevronDown size={14} className={`text-on-surface-variant/70 transition-transform duration-300 ${dropdownOpen ? 'rotate-180' : ''}`} />
@@ -59,7 +59,7 @@ export default function TopNav({ navigate, onMenuClick }: Props) {
             {dropdownOpen && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setDropdownOpen(false)} />
-                <div className="absolute right-0 top-full mt-2 w-56 bg-surface-container border border-outline-variant/20 rounded-xl py-2 shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute right-0 top-full mt-2 w-56 bg-surface-container-lowest border border-outline-variant rounded-xl py-2 shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                   <div className="px-4 py-2 border-b border-outline-variant/10 md:hidden">
                     <p className="text-sm font-bold text-primary">{session.user.name}</p>
                     <p className="text-xs text-on-surface-variant truncate">{session.user.email}</p>
@@ -70,7 +70,7 @@ export default function TopNav({ navigate, onMenuClick }: Props) {
                       setDropdownOpen(false);
                       if (navigate) navigate('settings');
                     }}
-                    className="w-full text-left px-4 py-2.5 text-sm text-on-surface hover:bg-surface-container-high transition-colors flex items-center gap-2 cursor-pointer"
+                    className="w-full text-left px-4 py-2.5 text-sm text-primary hover:bg-surface-container transition-colors flex items-center gap-2 cursor-pointer font-medium"
                   >
                     <Settings size={16} className="text-on-surface-variant" />
                     Settings
@@ -81,7 +81,7 @@ export default function TopNav({ navigate, onMenuClick }: Props) {
                       setDropdownOpen(false);
                       signOut({ callbackUrl: '/login' });
                     }}
-                    className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2 border-t border-outline-variant/5 cursor-pointer font-medium"
+                    className="w-full text-left px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-500/10 transition-colors flex items-center gap-2 border-t border-outline-variant/10 cursor-pointer font-medium"
                   >
                     <LogOut size={16} />
                     Sign Out

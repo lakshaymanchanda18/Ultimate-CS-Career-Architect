@@ -138,11 +138,11 @@ export default function DashboardSection({ navigate, restoreAnalysis }: Props) {
 
       {/* Active Career Agent Roadmap Banner */}
       {activePlan && (
-        <div className="mb-8 p-6 md:p-7 rounded-3xl bg-gradient-to-r from-surface-container via-surface-container-high to-surface-container border border-secondary/30 shadow-lg slide-up">
+        <div className="mb-8 p-6 md:p-7 rounded-2xl bg-surface-container-lowest border border-outline-variant shadow-sm slide-up">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
-                <span className="px-2.5 py-0.5 bg-secondary/15 text-secondary text-[11px] font-bold rounded-full uppercase flex items-center gap-1">
+                <span className="px-2.5 py-0.5 bg-secondary/10 border border-secondary/20 text-secondary text-[11px] font-bold rounded-md uppercase flex items-center gap-1">
                   <Compass size={12} /> Active Career Plan
                 </span>
                 <span className="text-xs text-on-surface-variant font-medium">

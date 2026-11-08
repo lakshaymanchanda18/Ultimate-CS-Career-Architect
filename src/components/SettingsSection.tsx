@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Settings, Monitor, Sun, Moon, Database, Trash2, Compass, ShieldCheck } from 'lucide-react';
+import Link from 'next/link';
+import { Settings, Monitor, Sun, Moon, Database, Trash2, Compass, ShieldCheck, FileText } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
 import { useSession } from 'next-auth/react';
 import { UserData } from '../app/page';
@@ -276,7 +277,7 @@ export default function SettingsSection({ userData, updateUserData }: Props) {
             <h3 className="font-headline font-bold text-lg text-primary flex items-center gap-2">
               <Compass size={20} className="text-secondary" /> Career Agent AI
             </h3>
-            <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500 border border-emerald-500/20 text-xs font-bold uppercase">
+            <span className="px-2.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-bold uppercase">
               Active (v1 Supervised)
             </span>
           </div>
@@ -313,10 +314,34 @@ export default function SettingsSection({ userData, updateUserData }: Props) {
             </div>
             <button 
               onClick={handleClearCache}
-              className="px-6 py-3 bg-white dark:bg-surface-container-low text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/40 rounded-xl font-bold flex items-center gap-2 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors cursor-pointer"
+              className="px-6 py-3 bg-white dark:bg-surface-container-low text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/40 rounded-xl font-bold flex items-center gap-2 hover:bg-red-500/10 transition-colors cursor-pointer"
             >
               <Trash2 size={16} /> Clear Cache
             </button>
+          </div>
+        </div>
+
+        {/* Legal & Governance */}
+        <div className="bg-surface-container-lowest p-8 rounded-3xl border border-outline-variant/15 shadow-sm card-hover">
+          <h3 className="font-headline font-bold text-lg mb-4 text-primary flex items-center gap-2">
+            <ShieldCheck size={20} className="text-secondary" /> Legal and Data Governance
+          </h3>
+          <p className="text-xs text-on-surface-variant mb-6 leading-relaxed">
+            Review how your career data, resume text, and interview evaluations are governed and protected.
+          </p>
+          <div className="flex flex-wrap gap-4">
+            <Link
+              href="/privacy"
+              className="px-5 py-2.5 bg-surface-container hover:bg-surface-container-high text-primary rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors border border-outline-variant/20"
+            >
+              <FileText size={14} className="text-secondary" /> Privacy Policy
+            </Link>
+            <Link
+              href="/terms"
+              className="px-5 py-2.5 bg-surface-container hover:bg-surface-container-high text-primary rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors border border-outline-variant/20"
+            >
+              <FileText size={14} className="text-secondary" /> Terms of Service
+            </Link>
           </div>
         </div>
 

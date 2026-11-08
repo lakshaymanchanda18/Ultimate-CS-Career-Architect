@@ -105,7 +105,7 @@ export default function ProjectStudio({ title, techStack, navigate }: ProjectStu
       </button>
 
       <div className="mb-8 slide-up">
-        <span className="px-3.5 py-1.5 bg-primary-container text-secondary-fixed text-[10px] font-bold rounded-full mb-4 inline-block uppercase tracking-widest shadow-sm">Execution Studio</span>
+        <span className="px-3 py-1 bg-surface-container text-secondary border border-outline-variant text-[11px] font-semibold rounded-md mb-4 inline-block uppercase tracking-wider">Execution Studio</span>
         <h2 className="text-4xl font-headline font-extrabold text-primary mb-3 tracking-tight">{title}</h2>
         <p className="text-on-surface-variant text-[15px]">Tech Stack: <span className="font-bold text-primary">{techStack}</span></p>
       </div>

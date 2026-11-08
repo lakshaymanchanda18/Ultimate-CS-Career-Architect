@@ -149,9 +149,6 @@ function DashboardApp() {
       <main className="flex-1 flex flex-col h-screen overflow-hidden relative w-full">
         <TopNav navigate={navigate} onMenuClick={() => setIsMobileMenuOpen(true)} />
         
-        {/* Ambient background glow for content area */}
-        <div className="absolute top-0 right-0 w-full h-[500px] bg-gradient-to-b from-secondary/5 to-transparent pointer-events-none -z-10"></div>
-        
         <div className={`flex-1 overflow-y-auto overflow-x-hidden p-6 md:p-10 scroll-smooth transition-opacity duration-200 ease-in-out ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
           {loadingProfile ? (
             <div className="flex h-full w-full items-center justify-center py-20 text-center">

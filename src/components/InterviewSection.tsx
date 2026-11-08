@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { 
   Bot, CheckCircle, Lock, ArrowRight, UserCircle, Sparkles, 
   Award, ArrowLeft, RefreshCw, Send, BrainCircuit, FileText, 
-  Check, AlertCircle, HelpCircle, Loader2, Sparkle, Clock, Trash2
+  Check, AlertCircle, HelpCircle, Loader2, Sparkle, Clock, Trash2, RotateCcw
 } from 'lucide-react';
 import { UserData } from '../app/page';
 
@@ -526,7 +526,7 @@ export default function InterviewSection({ navigate, userData, updateUserData }:
       {sessionState === 'setup' && (
         <div className="flex-1 flex flex-col justify-center">
           <div className="mb-10 text-center lg:text-left">
-            <span className="text-[10px] font-bold tracking-widest text-secondary uppercase bg-secondary/15 px-3 py-1.5 rounded-full">
+            <span className="text-[10px] font-bold tracking-widest text-secondary uppercase bg-secondary/10 border border-secondary/20 px-3 py-1 rounded-md">
               Recruiter Hub • Phase 01
             </span>
             <h2 className="text-3xl md:text-5xl font-headline font-extrabold text-primary mt-4 mb-3 tracking-tight">
@@ -713,10 +713,10 @@ export default function InterviewSection({ navigate, userData, updateUserData }:
                   >
                     <div>
                       <div className="flex justify-between items-start mb-2">
-                        <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                        <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md ${
                           sessionItem.mode === 'mock-interview' 
                             ? 'bg-primary-container text-white' 
-                            : 'bg-secondary-fixed/20 text-secondary'
+                            : 'bg-secondary/10 text-secondary'
                         }`}>
                           {sessionItem.mode === 'mock-interview' ? 'Mock Assessment' : 'Academic Sync'}
                         </span>
@@ -835,13 +835,13 @@ export default function InterviewSection({ navigate, userData, updateUserData }:
             {/* Header bar */}
             <div className="px-6 py-4 border-b border-outline-variant/10 flex items-center justify-between bg-surface-container-lowest">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-secondary-fixed/20 flex items-center justify-center pulse-glow">
-                  <Bot className="text-secondary" size={20} />
+                <div className="w-10 h-10 rounded-xl bg-surface-container text-secondary flex items-center justify-center border border-outline-variant">
+                  <Bot size={20} />
                 </div>
                 <div>
-                  <h3 className="font-headline font-bold text-sm text-primary">Recruiter Agent</h3>
-                  <span className="text-[10px] text-green-600 font-semibold flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> Active failover routing
+                  <h3 className="font-headline font-bold text-sm text-primary">Technical Interviewer</h3>
+                  <span className="text-[10px] text-secondary font-semibold flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-secondary" /> Active Session
                   </span>
                 </div>
               </div>
@@ -894,24 +894,24 @@ export default function InterviewSection({ navigate, userData, updateUserData }:
 
             {/* Quick Reply Suggestions */}
             {!loading && messages.length > 0 && (
-              <div className="px-6 py-2 bg-surface-container-lowest border-t border-outline-variant/10 flex flex-wrap gap-2">
+              <div className="px-6 py-2.5 bg-surface-container-lowest border-t border-outline-variant/10 flex flex-wrap gap-2">
                 <button 
                   onClick={() => handleSendMessage(undefined, "Can I have a hint, please?")}
-                  className="bg-surface-container text-[11px] font-semibold px-3 py-1.5 rounded-full hover:bg-surface-container-high transition-colors text-primary"
+                  className="bg-surface-container text-[11px] font-semibold px-3 py-1.5 rounded-md hover:bg-surface-container-high transition-colors text-primary flex items-center gap-1.5 cursor-pointer border border-outline-variant/20"
                 >
-                  💡 Request Hint
+                  <HelpCircle size={13} className="text-secondary" /> Request Hint
                 </button>
                 <button 
                   onClick={() => handleSendMessage(undefined, "I need a moment to think about this.")}
-                  className="bg-surface-container text-[11px] font-semibold px-3 py-1.5 rounded-full hover:bg-surface-container-high transition-colors text-primary"
+                  className="bg-surface-container text-[11px] font-semibold px-3 py-1.5 rounded-md hover:bg-surface-container-high transition-colors text-primary flex items-center gap-1.5 cursor-pointer border border-outline-variant/20"
                 >
-                  ⏳ Need time
+                  <Clock size={13} className="text-secondary" /> Need Time
                 </button>
                 <button 
                   onClick={() => handleSendMessage(undefined, "Could you explain the system requirements again?")}
-                  className="bg-surface-container text-[11px] font-semibold px-3 py-1.5 rounded-full hover:bg-surface-container-high transition-colors text-primary"
+                  className="bg-surface-container text-[11px] font-semibold px-3 py-1.5 rounded-md hover:bg-surface-container-high transition-colors text-primary flex items-center gap-1.5 cursor-pointer border border-outline-variant/20"
                 >
-                  🔍 Re-explain question
+                  <RotateCcw size={13} className="text-secondary" /> Re-explain Question
                 </button>
               </div>
             )}
@@ -954,7 +954,7 @@ export default function InterviewSection({ navigate, userData, updateUserData }:
           <div className="bg-surface-container-lowest border border-outline-variant/15 rounded-3xl p-8 shadow-sm flex flex-col md:flex-row items-center gap-8 justify-between relative overflow-hidden">
             <div className="absolute right-0 top-0 w-64 h-64 bg-primary/5 rounded-full filter blur-3xl pointer-events-none" />
             <div className="text-center md:text-left z-10">
-              <span className="text-[10px] font-bold tracking-widest text-primary uppercase bg-primary-container px-3 py-1 rounded-full">Mock Assessment Feedback</span>
+              <span className="text-[10px] font-bold tracking-widest text-primary uppercase bg-surface-container border border-outline-variant px-3 py-1 rounded-md">Mock Assessment Feedback</span>
               <h2 className="text-3xl font-headline font-extrabold text-primary mt-3">Diagnostic Performance Card</h2>
               <p className="text-sm text-on-surface-variant/80 mt-1 max-w-xl">
                 Here is the feedback generated by the AI recruiter agent based on your mock answers. Use this to patch gaps in your system design and algorithm syntax.
@@ -1079,7 +1079,7 @@ export default function InterviewSection({ navigate, userData, updateUserData }:
               {evaluation.qaBreakdown.map((item, idx) => (
                 <div key={idx} className="border-b border-outline-variant/10 pb-8 last:border-b-0 last:pb-0">
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="text-[10px] font-bold bg-surface-container-high px-2.5 py-1 rounded-full text-primary">Q{idx + 1}</span>
+                    <span className="text-[10px] font-bold bg-surface-container-high px-2 py-0.5 rounded-md text-primary font-mono">Q{idx + 1}</span>
                     <h4 className="font-headline font-bold text-sm text-primary">{item.question}</h4>
                   </div>
                   

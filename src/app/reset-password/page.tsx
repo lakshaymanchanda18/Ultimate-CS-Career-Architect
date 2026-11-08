@@ -2,7 +2,7 @@
 
 import { useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Lock, ArrowRight, Sparkles, CheckCircle, AlertCircle } from "lucide-react";
+import { Lock, ArrowRight, CheckCircle, AlertCircle, KeyRound } from "lucide-react";
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
@@ -53,7 +53,7 @@ function ResetPasswordForm() {
           router.push("/login");
         }, 3000);
       }
-    } catch (err) {
+    } catch {
       setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
@@ -81,17 +81,17 @@ function ResetPasswordForm() {
   return (
     <div className="bg-surface-container border border-outline-variant/30 rounded-2xl p-8 max-w-md w-full shadow-xl">
       <div className="mb-8 text-center">
-        <div className="inline-flex w-12 h-12 rounded-xl bg-primary-container text-secondary-fixed items-center justify-center mb-4">
-          <Sparkles size={24} />
+        <div className="inline-flex w-12 h-12 rounded-xl bg-surface-container text-secondary items-center justify-center mb-4 border border-outline-variant">
+          <KeyRound size={22} />
         </div>
-        <h2 className="text-2xl font-headline font-extrabold mb-2">Reset Password</h2>
+        <h2 className="text-2xl font-headline font-extrabold mb-2 text-primary">Reset Password</h2>
         <p className="text-on-surface-variant text-sm">
           Create a secure new password for your account.
         </p>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl mb-6 font-medium flex items-center gap-2">
+        <div className="bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-sm px-4 py-3 rounded-xl mb-6 font-medium flex items-center gap-2">
           <AlertCircle size={18} className="shrink-0" />
           <span>{error}</span>
         </div>
@@ -99,8 +99,8 @@ function ResetPasswordForm() {
 
       {success ? (
         <div className="text-center space-y-4 py-4">
-          <CheckCircle className="mx-auto text-green-500" size={56} />
-          <h3 className="text-xl font-bold text-green-600">Password Reset Successful!</h3>
+          <CheckCircle className="mx-auto text-secondary" size={56} />
+          <h3 className="text-xl font-bold text-secondary">Password Reset Successful</h3>
           <p className="text-sm text-on-surface-variant">
             Your password has been updated. Redirecting you to the login screen...
           </p>

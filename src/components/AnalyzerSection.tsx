@@ -77,7 +77,7 @@ export default function AnalyzerSection({ navigate, userData, updateUserData }: 
       }
 
       if (err.name === 'TimeoutError') {
-        setError({ message: 'Request timed out. The AI service may be busy — please try again.', retryable: true });
+        setError({ message: 'Request timed out. The AI service may be busy. Please try again.', retryable: true });
       } else if (err.message) {
         setError({ message: err.message, retryable: err.retryable !== false });
       } else {
@@ -255,7 +255,7 @@ export default function AnalyzerSection({ navigate, userData, updateUserData }: 
              <h5 className="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant mb-4">Top Keyword Matches</h5>
              <div className="flex gap-2 flex-wrap">
                {keywords?.slice(0, 4).map((k: string) => (
-                 <span key={k} className="px-3.5 py-1.5 bg-secondary-fixed/10 text-secondary border border-secondary-fixed/30 text-[10px] font-bold rounded-full hover:bg-secondary-fixed/20 hover:scale-105 transition-all cursor-default">
+                 <span key={k} className="px-3 py-1 bg-secondary/10 text-secondary border border-secondary/20 text-[11px] font-semibold rounded-md cursor-default">
                    {k}
                  </span>
                ))}
@@ -278,15 +278,15 @@ export default function AnalyzerSection({ navigate, userData, updateUserData }: 
          </div>
          
          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div className="bg-red-50/50 p-6 rounded-2xl border border-red-100 hover:border-red-200 transition-colors">
-               <span className="text-[10px] font-bold text-red-600 uppercase tracking-widest mb-3 flex items-center gap-1.5"><AlertTriangle size={14} /> Weak Bullet Points</span>
+            <div className="bg-red-500/10 p-6 rounded-2xl border border-red-500/20 transition-colors">
+               <span className="text-[10px] font-bold text-red-600 dark:text-red-400 uppercase tracking-widest mb-3 flex items-center gap-1.5"><AlertTriangle size={14} /> Weak Bullet Points</span>
                <p className="text-[15px] italic mb-5 text-on-surface-variant leading-relaxed">"{weakBullet || 'N/A'}"</p>
-               <span className="inline-block px-3 py-1 bg-red-100 text-red-700 text-[10px] font-bold uppercase rounded-lg">ISSUE: {weakIssue || 'Vague description'}</span>
+               <span className="inline-block px-3 py-1 bg-red-500/20 text-red-700 dark:text-red-300 text-[10px] font-bold uppercase rounded-lg">ISSUE: {weakIssue || 'Vague description'}</span>
             </div>
-            <div className="bg-secondary-fixed/5 p-6 rounded-2xl border border-secondary-fixed/30 hover:border-secondary-fixed/50 transition-colors">
+            <div className="bg-secondary/10 p-6 rounded-2xl border border-secondary/20 transition-colors">
                <span className="text-[10px] font-bold text-secondary uppercase tracking-widest mb-3 flex items-center gap-1.5"><CheckCircle size={14} /> Impactful Alternatives</span>
                <p className="text-[15px] font-semibold mb-5 leading-relaxed bg-surface-container-lowest p-4 rounded-xl shadow-sm text-primary">"{fixedBullet || 'N/A'}"</p>
-               <span className="inline-block px-3 py-1 bg-secondary-fixed/20 text-secondary text-[10px] font-bold uppercase rounded-lg">STRENGTH: {fixedStrength || 'Action-oriented'}</span>
+               <span className="inline-block px-3 py-1 bg-secondary/20 text-secondary text-[10px] font-bold uppercase rounded-lg">STRENGTH: {fixedStrength || 'Action-oriented'}</span>
             </div>
          </div>
       </div>
@@ -295,7 +295,7 @@ export default function AnalyzerSection({ navigate, userData, updateUserData }: 
          <button onClick={() => toPDF()} className="bg-surface-container-lowest text-primary border border-outline-variant/20 px-7 py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-surface-container-low transition-all">
            <Download size={18} /> Export to PDF
          </button>
-         <button onClick={() => navigate('projects')} className="bg-primary-container text-secondary-fixed px-7 py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-primary transition-all ai-glow">
+         <button onClick={() => navigate('projects')} className="bg-primary text-on-primary-fixed px-7 py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:opacity-95 transition-all">
            <Cpu size={18} /> Suggest Projects for My Profile
          </button>
       </div>

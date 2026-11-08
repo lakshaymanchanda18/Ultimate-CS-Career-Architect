@@ -140,7 +140,7 @@ export default function JobBoardSection() {
       </div>
 
       {showAddForm && (
-        <div className="bg-surface-container-lowest p-8 rounded-3xl border border-outline-variant/15 shadow-md mb-8 max-w-2xl slide-up gradient-border relative z-20">
+        <div className="bg-surface-container-lowest p-8 rounded-3xl border border-outline-variant shadow-sm mb-8 max-w-2xl slide-up relative z-20">
           <h3 className="font-headline font-bold text-lg mb-6">New Application Record</h3>
           <form onSubmit={handleAddJob} className="flex flex-col gap-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -195,7 +195,7 @@ export default function JobBoardSection() {
                   <div className="p-5 border-b border-outline-variant/10 flex justify-between items-center bg-surface-container-lowest relative">
                     <div className={`absolute top-0 left-0 w-full h-1 ${accentColor}`}></div>
                     <h3 className="font-headline font-bold text-[13px] tracking-widest uppercase text-primary mt-1">{columnId}</h3>
-                    <span className="text-[10px] bg-surface-container-low px-2.5 py-1 rounded-full font-bold text-on-surface-variant mt-1">{columnJobs.length}</span>
+                    <span className="text-[10px] bg-surface-container px-2 py-0.5 rounded-md font-bold text-on-surface-variant mt-1 font-mono">{columnJobs.length}</span>
                   </div>
                   
                   <Droppable droppableId={columnId}>

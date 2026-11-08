@@ -22,7 +22,7 @@ interface BlueprintInput {
 }
 
 /**
- * Resume ATS analysis prompt — targets ~300 input tokens.
+ * Resume ATS analysis prompt: targets ~300 input tokens.
  */
 export function buildAnalysisPrompt(data: AnalysisInput): string {
   return `You are an elite Tier-1 MNC recruiter (Google, Microsoft level). Evaluate this resume profile strictly.
@@ -38,7 +38,7 @@ Return ONLY valid JSON (no markdown, no backticks):
 }
 
 /**
- * Project suggestions prompt — targets ~250 input tokens.
+ * Project suggestions prompt: targets ~250 input tokens.
  */
 export function buildProjectsPrompt(data: ProjectsInput): string {
   let prompt = `You are a senior CS career architect. Suggest 3 advanced projects for a "${data.specialization}" student targeting 50 LPA+ roles at Tier-1 MNCs.`;
@@ -56,7 +56,7 @@ Return ONLY a JSON array of exactly 3 objects (no markdown, no backticks):
 }
 
 /**
- * Project blueprint prompt — targets ~200 input tokens.
+ * Project blueprint prompt: targets ~200 input tokens.
  */
 export function buildBlueprintPrompt(data: BlueprintInput): string {
   return `You are a Staff Software Engineer designing a project blueprint.
@@ -80,7 +80,7 @@ export interface CareerPlanPromptInput {
 }
 
 /**
- * Career Architect Plan prompt — creates a bounded, milestone-based career roadmap.
+ * Career Architect Plan prompt: creates a bounded, milestone-based career roadmap.
  */
 export function buildCareerPlanPrompt(data: CareerPlanPromptInput): string {
   const duration = data.durationWeeks ? `${data.durationWeeks} Weeks` : '4 Weeks';

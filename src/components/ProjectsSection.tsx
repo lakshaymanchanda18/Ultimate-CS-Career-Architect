@@ -121,15 +121,15 @@ export default function ProjectsSection({ userData, openStudio, exploreProjects,
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
         <div>
-           <span className="px-3 py-1.5 bg-secondary-fixed/15 text-secondary text-xs font-bold rounded-full mb-4 inline-flex items-center gap-1.5 w-fit badge-pulse">
-             <Sparkles size={14} /> HIGH-IMPACT MODE
+           <span className="px-3 py-1 bg-surface-container text-secondary border border-outline-variant text-xs font-semibold rounded-md mb-3 inline-flex items-center gap-1.5 w-fit">
+             <Sparkles size={14} /> System Architectures
            </span>
            <h2 className="text-4xl font-headline font-extrabold text-primary mb-2 tracking-tight">
              {activeTab === 'explore' ? 'Smart Project Suggester' : 'My Saved Projects'}
            </h2>
            <p className="text-on-surface-variant text-[15px] max-w-2xl">
              {activeTab === 'explore' 
-               ? <>Custom suggestions for <span className="font-bold text-secondary border-b border-secondary/30 pb-0.5">{userData.specialization || "Software Engineering"}</span> aiming for <span className="font-bold text-primary">50 LPA+</span> roles.</>
+               ? <>Custom suggestions for <span className="font-bold text-secondary border-b border-secondary/30 pb-0.5">{userData.specialization || "Software Engineering"}</span> targeting technical engineering roles.</>
                : 'Review, modify, and execute your permanently saved roadmap ideas.'
              }
            </p>
@@ -159,7 +159,7 @@ export default function ProjectsSection({ userData, openStudio, exploreProjects,
         >
           Saved Projects
           {savedProjects.length > 0 && (
-            <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold rounded-full">
+            <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold rounded-md">
               {savedProjects.length}
             </span>
           )}
@@ -238,7 +238,7 @@ export default function ProjectsSection({ userData, openStudio, exploreProjects,
                   
                   <div className="flex flex-wrap gap-2 mt-auto">
                     {p.stack?.map((tech: string) => (
-                      <span key={tech} className="px-3 py-1 bg-surface-container-high text-primary text-[10px] font-bold rounded-full uppercase tracking-wider">{tech}</span>
+                      <span key={tech} className="px-3 py-1 bg-surface-container-high text-primary text-[10px] font-bold rounded-md uppercase tracking-wider">{tech}</span>
                     ))}
                   </div>
                 </div>
@@ -247,7 +247,7 @@ export default function ProjectsSection({ userData, openStudio, exploreProjects,
                 <div className="flex-1 flex flex-col justify-between space-y-6 md:space-y-0 md:border-l md:border-outline-variant/10 md:pl-8">
                   <div className="space-y-4">
                     <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-secondary-fixed/15 text-secondary flex items-center justify-center shrink-0 mt-0.5">
+                      <div className="w-6 h-6 rounded-md bg-secondary/10 text-secondary flex items-center justify-center shrink-0 mt-0.5">
                         <Zap size={13} />
                       </div>
                       <div>
@@ -257,11 +257,11 @@ export default function ProjectsSection({ userData, openStudio, exploreProjects,
                     </div>
                     
                     <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-primary-container/20 text-primary flex items-center justify-center shrink-0 mt-0.5">
-                        <Sparkles size={13} className="text-primary-fixed" />
+                      <div className="w-6 h-6 rounded-md bg-surface-container text-primary flex items-center justify-center shrink-0 mt-0.5">
+                        <Sparkles size={13} />
                       </div>
                       <div>
-                        <span className="text-[10px] font-bold text-primary uppercase tracking-wider block">LPA Tip</span>
+                        <span className="text-[10px] font-bold text-primary uppercase tracking-wider block">Engineering Tip</span>
                         <p className="text-on-surface-variant text-sm font-medium mt-0.5 leading-relaxed">{p.lpaTip}</p>
                       </div>
                     </div>
@@ -330,7 +330,7 @@ export default function ProjectsSection({ userData, openStudio, exploreProjects,
                   
                   <div className="flex flex-wrap gap-2 mt-auto">
                     {p.stack?.map((tech: string) => (
-                      <span key={tech} className="px-3 py-1 bg-surface-container-high text-primary text-[10px] font-bold rounded-full uppercase tracking-wider">{tech}</span>
+                      <span key={tech} className="px-3 py-1 bg-surface-container-high text-primary text-[10px] font-bold rounded-md uppercase tracking-wider">{tech}</span>
                     ))}
                   </div>
                 </div>
@@ -339,7 +339,7 @@ export default function ProjectsSection({ userData, openStudio, exploreProjects,
                 <div className="flex-1 flex flex-col justify-between space-y-6 md:space-y-0 md:border-l md:border-outline-variant/10 md:pl-8">
                   <div className="space-y-4">
                     <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-secondary-fixed/15 text-secondary flex items-center justify-center shrink-0 mt-0.5">
+                      <div className="w-6 h-6 rounded-md bg-secondary/10 text-secondary flex items-center justify-center shrink-0 mt-0.5">
                         <Zap size={13} />
                       </div>
                       <div>
@@ -349,11 +349,11 @@ export default function ProjectsSection({ userData, openStudio, exploreProjects,
                     </div>
                     
                     <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-primary-container/20 text-primary flex items-center justify-center shrink-0 mt-0.5">
-                        <Sparkles size={13} className="text-primary-fixed" />
+                      <div className="w-6 h-6 rounded-md bg-surface-container text-primary flex items-center justify-center shrink-0 mt-0.5">
+                        <Sparkles size={13} />
                       </div>
                       <div>
-                        <span className="text-[10px] font-bold text-primary uppercase tracking-wider block">LPA Tip</span>
+                        <span className="text-[10px] font-bold text-primary uppercase tracking-wider block">Engineering Tip</span>
                         <p className="text-on-surface-variant text-sm font-medium mt-0.5 leading-relaxed">{p.lpaTip}</p>
                       </div>
                     </div>

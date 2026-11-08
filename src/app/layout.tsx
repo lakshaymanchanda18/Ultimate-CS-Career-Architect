@@ -4,9 +4,17 @@ import Providers from "@/components/Providers";
 import { ThemeProvider } from "@/components/ThemeProvider";
 
 export const metadata: Metadata = {
-  title: "CareerEngine | Ultimate CS Career Architect",
-  description: "AI-powered career intelligence for CS students. Optimize your resume for ATS, generate high-impact projects, and track your job applications all in one platform.",
-  keywords: "CS Career, ATS Resume, Software Engineering Projects, Interview Prep, AI Career Coach",
+  metadataBase: new URL(process.env.NEXTAUTH_URL || "https://careerengine.dev"),
+  title: "CareerEngine | CS Career Architect",
+  description: "Technical career preparation workspace for computer science candidates. ATS resume audit, technical interview simulations, portfolio architecture designs, and application tracking.",
+  keywords: "Software Engineer, ATS Resume Audit, System Design, Technical Interview Preparation, Computer Science Career",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" }
+    ],
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
@@ -15,11 +23,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
-        <meta name="theme-color" content="#f7f9fb" />
+        <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)" />
+        <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)" />
       </head>
-      <body className="antialiased transition-colors duration-300">
+      <body className="antialiased transition-colors duration-200">
         <ThemeProvider>
           <Providers>
             {children}

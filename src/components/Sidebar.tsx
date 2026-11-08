@@ -55,12 +55,12 @@ export default function Sidebar({ currentMode, navigate, isOpen, onClose }: Side
         <div>
           <div className="p-8 flex items-center justify-between">
             <div className="flex items-center gap-3.5 cursor-pointer group" onClick={() => handleNav('discovery')}>
-              <div className="w-10 h-10 rounded-xl bg-primary-container text-secondary-fixed flex items-center justify-center group-hover:shadow-[0_0_15px_rgba(95,251,214,0.3)] transition-all duration-300">
-                <Sparkles size={20} />
+              <div className="w-9 h-9 rounded-lg bg-primary-container text-secondary flex items-center justify-center border border-outline-variant">
+                <Sparkles size={18} />
               </div>
               <div>
-                <h1 className="font-headline font-bold text-[17px] leading-tight tracking-tight">CareerEngine</h1>
-                <p className="text-[9px] text-on-surface-variant tracking-widest uppercase font-bold mt-0.5">CS Architect</p>
+                <h1 className="font-headline font-bold text-[16px] leading-tight tracking-tight">CareerEngine</h1>
+                <p className="text-[10px] text-on-surface-variant tracking-wider uppercase font-semibold mt-0.5">CS Architect</p>
               </div>
             </div>
             <button 
@@ -116,8 +116,8 @@ export default function Sidebar({ currentMode, navigate, isOpen, onClose }: Side
 
         <div className="p-4 space-y-1.5 mb-4 border-t border-outline-variant/10 pt-6">
           {session ? (
-            <div onClick={() => signOut({ callbackUrl: '/login' })} className="flex items-center gap-3.5 px-4 py-3 rounded-xl text-red-600 font-medium hover:bg-red-50 transition-colors cursor-pointer group">
-              <LogOut size={18} className="group-hover:scale-110 transition-transform" />
+            <div onClick={() => signOut({ callbackUrl: '/login' })} className="flex items-center gap-3.5 px-4 py-3 rounded-xl text-red-600 dark:text-red-400 font-medium hover:bg-red-500/10 transition-colors cursor-pointer group">
+              <LogOut size={18} />
               <span className="text-[14px]">Sign Out</span>
             </div>
           ) : (

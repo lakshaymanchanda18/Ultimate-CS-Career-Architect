@@ -188,14 +188,14 @@ export default function AgentSection({ navigate }: Props) {
   return (
     <div className="w-full max-w-6xl mx-auto space-y-8 animate-in fade-in duration-300 pb-16">
       {/* Top Banner / Hero */}
-      <div className="relative rounded-3xl p-8 md:p-10 overflow-hidden bg-gradient-to-r from-surface-container via-surface-container-high to-surface-container border border-outline-variant/20 shadow-xl">
+      <div className="relative rounded-2xl p-8 md:p-10 overflow-hidden bg-surface-container-lowest border border-outline-variant shadow-sm">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-3">
             <div className="flex items-center gap-2.5 flex-wrap">
-              <span className="px-3 py-1 bg-secondary/15 text-secondary border border-secondary/30 text-xs font-bold rounded-full inline-flex items-center gap-1.5 shadow-sm">
-                <Compass size={13} className="animate-spin-slow" /> SUPERVISED AGENTIC AI
+              <span className="px-3 py-1 bg-secondary/10 text-secondary border border-secondary/20 text-xs font-bold rounded-md inline-flex items-center gap-1.5">
+                <Compass size={13} /> SUPERVISED AGENT
               </span>
-              <span className="px-2.5 py-0.5 bg-primary/10 text-primary border border-primary/20 text-[11px] font-semibold rounded-full">
+              <span className="px-2.5 py-0.5 bg-surface-container text-on-surface-variant border border-outline-variant text-[11px] font-semibold rounded-md">
                 Bounded & Zero-Autonomous Writes
               </span>
             </div>
@@ -420,15 +420,15 @@ export default function AgentSection({ navigate }: Props) {
 
               {/* Interactive Plan Preview Card */}
               {currentRun.planPreview && (
-                <div className="bg-gradient-to-b from-surface-container to-surface-container-low rounded-3xl p-6 md:p-8 border-2 border-secondary/30 shadow-xl space-y-6">
+                <div className="bg-surface-container-lowest rounded-2xl p-6 md:p-8 border border-secondary/40 shadow-sm space-y-6">
                   {/* Card Header */}
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-outline-variant/15">
                     <div>
                       <div className="flex items-center gap-2 mb-1.5">
-                        <span className="px-2.5 py-0.5 bg-secondary/15 text-secondary text-[11px] font-bold rounded-full uppercase">
+                        <span className="px-2.5 py-0.5 bg-secondary/10 border border-secondary/20 text-secondary text-[11px] font-bold rounded-md uppercase">
                           Target Role: {currentRun.planPreview.targetRole}
                         </span>
-                        <span className="px-2.5 py-0.5 bg-primary/10 text-primary text-[11px] font-bold rounded-full">
+                        <span className="px-2.5 py-0.5 bg-surface-container border border-outline-variant text-primary text-[11px] font-semibold rounded-md">
                           {currentRun.planPreview.timeline}
                         </span>
                       </div>
@@ -506,7 +506,7 @@ export default function AgentSection({ navigate }: Props) {
                             <div>
                               <div className="flex items-center gap-2">
                                 <h4 className="text-sm font-bold text-primary">{m.title}</h4>
-                                <span className="text-[10px] font-semibold text-secondary px-2 py-0.5 bg-secondary/10 rounded-full">
+                                <span className="text-[10px] font-semibold text-secondary px-2 py-0.5 bg-secondary/10 rounded-md">
                                   {m.duration}
                                 </span>
                               </div>
@@ -621,7 +621,7 @@ export default function AgentSection({ navigate }: Props) {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="px-2.5 py-0.5 bg-secondary/15 text-secondary text-[10px] font-bold rounded-full uppercase">
+                        <span className="px-2.5 py-0.5 bg-secondary/10 border border-secondary/20 text-secondary text-[10px] font-bold rounded-md uppercase">
                           {plan.targetRole}
                         </span>
                         <span className="text-[11px] text-on-surface-variant font-medium">
